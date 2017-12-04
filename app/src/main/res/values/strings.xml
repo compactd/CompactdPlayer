@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Compactd Player</string>
+    <string name="logo_description">Compactd logo</string>
+    <string name="server_url_hint">Server URL</string>
+    <string name="connect_button_text" >Connect</string>
+    <string name="incompatible_server">Server is not accessible or not compatible</string>
+    <string name="username_text_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="edit_text_password_hint">Password</string>
+    <string name="previous_button_text">Previous</string>
+</resources>
