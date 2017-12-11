@@ -1,33 +1,29 @@
-package io.compactd.player;
+package io.compactd.player.ui;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 
 import io.compactd.client.CompactdClient;
 import io.compactd.client.CompactdException;
 import io.compactd.client.CompactdSync;
+import io.compactd.player.R;
 import io.compactd.player.utils.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
