@@ -13,7 +13,10 @@ import com.couchbase.lite.QueryOptions;
 import com.couchbase.lite.android.AndroidContext;
 import com.couchbase.lite.replicator.Replication;
 import com.couchbase.lite.replicator.ReplicationState;
+import com.couchbase.lite.support.ClearableCookieJar;
+import com.couchbase.lite.support.CouchbaseLiteHttpClientFactory;
 import com.couchbase.lite.support.HttpClientFactory;
+import com.couchbase.lite.support.PersistentCookieJar;
 import com.readystatesoftware.chuck.ChuckInterceptor;
 
 
@@ -28,6 +31,7 @@ import java.util.Map;
 import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdArtwork;
+import io.compactd.client.models.CompactdHttpClientFactory;
 import io.compactd.client.models.CompactdTrack;
 import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
@@ -90,14 +94,16 @@ import okhttp3.TlsVersion;
 
 
 public class CompactdSync {
-
     private static final String TAG = "CompactdSync";
     private static CompactdSync sInstance;
     private final String[] DATABASES = {
         CompactdTrack.DATABASE_NAME,
+        CompactdAlbum.DATABASE_NAME,
+        CompactdArtwork.DATABASE_NAME,
+        CompactdArtist.DATABASE_NAME
     };
     private final Manager mManager;
-    private final HttpClientFactory factory;
+    private HttpClientFactory factory;
     private String mToken;
     private String mURL;
     private List<SyncEventListener> mListeners = new ArrayList<SyncEventListener>();
@@ -112,69 +118,29 @@ public class CompactdSync {
     }
 
     public interface SyncEventListener {
-        public void finished () ;
-        public void databaseChanged (String database);
-        public void databaseSyncStarted (String database);
-        public void databaseSyncFinished (String database);
-        public void onCouchException (CouchbaseLiteException exc);
-        public void onURLException (MalformedURLException exc);
-        public void onProgress (float progress);
+        void finished () ;
+        void databaseChanged (String database);
+        void databaseSyncStarted (String database);
+        void databaseSyncFinished (String database);
+        void onCouchException (CouchbaseLiteException exc);
+        void onURLException (MalformedURLException exc);
+        void onProgress (float progress);
     }
 
     public interface DatabaseChangedListener {
-        public void onDatabaseChanged ();
+        void onDatabaseChanged ();
     }
 
     private CompactdSync(Context context) {
         this.mManager = CompactdManager.getInstance(context);
       //  interceptor = new ChuckInterceptor(context);
-        factory = new HttpClientFactory() {
-            @Override
-            public OkHttpClient getOkHttpClient() {
-                ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                        .tlsVersions(TlsVersion.TLS_1_2)
-                        .cipherSuites(
-                                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                                CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                                CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
-                        .build();
-                return new OkHttpClient.Builder()
-                      //  .addInterceptor(interceptor)
-                        .connectionSpecs(Arrays.asList(spec, ConnectionSpec.CLEARTEXT))
-                        .build();
-            }
+        try {
+            factory = new CompactdHttpClientFactory(
+                    new PersistentCookieJar(mManager.getDatabase("cookies")));
 
-            @Override
-            public void addCookies(List<Cookie> cookies) {
-                android.util.Log.e(TAG, "addCookies: " + cookies);
-            }
-
-            @Override
-            public void deleteCookie(String name) {
-                android.util.Log.e(TAG, "deleteCookie: " + name);
-            }
-
-            @Override
-            public void deleteCookie(URL url) {
-                android.util.Log.e(TAG, "deleteCookie: " + url );
-            }
-
-            @Override
-            public void resetCookieStore() {
-                android.util.Log.e(TAG, "resetCookieStore:");
-            }
-
-            @Override
-            public CookieJar getCookieStore() {
-                android.util.Log.e(TAG, "getCookieStore: ");
-                return null;
-            }
-
-            @Override
-            public void evictAllConnectionsInPool() {
-
-            }
-        };
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start (String prefix) {
@@ -247,7 +213,6 @@ public class CompactdSync {
 
         DatabaseOptions options = new DatabaseOptions();
         options.setCreate(true);
-        Log.d(TAG, "sync: " + prefix + database);
         final Database db = mManager.getDatabase(prefix + database);
 
         db.delete();
@@ -259,7 +224,6 @@ public class CompactdSync {
         db.open(opts);
 
 
-        Log.d(TAG, "sync: "+db);
         Replication rep = db.createPullReplication(new URL(mURL + "/database/" + database));
 
         Map<String, Object> headers = new HashMap<>();
@@ -269,7 +233,6 @@ public class CompactdSync {
         rep.addChangeListener(new Replication.ChangeListener() {
             @Override
             public void changed(Replication.ChangeEvent event) {
-            Log.d(TAG, event.toString());
             if (event.getChangeCount() > 0) {
                 for (SyncEventListener listener : mListeners) {
                     listener.databaseChanged(database);
@@ -277,8 +240,8 @@ public class CompactdSync {
             }
             for (SyncEventListener listener : mListeners) {
                 listener.onProgress((
-                        (event.getCompletedChangeCount() / (event.getChangeCount() + 1)
-                                + index) / DATABASES.length));
+                        ((float) event.getCompletedChangeCount() / ((float) event.getChangeCount() + 1)
+                                + (float) index) / (float) DATABASES.length));
             }
             if (event.getTransition() != null && event.getTransition().getDestination().equals(ReplicationState.STOPPED)) {
 

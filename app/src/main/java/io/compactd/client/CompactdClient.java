@@ -32,6 +32,7 @@ public class CompactdClient {
     }
 
     private URL url;
+    private String username;
 
     private CompactdClient() {
     }
@@ -73,6 +74,7 @@ public class CompactdClient {
         if (isTokenValid(token)) {
             return true;
         }
+
         CompactdRequest req = new CompactdRequest(url, "/api/sessions");
         JSONObject body = new JSONObject();
         body.put("username", username);
@@ -82,6 +84,7 @@ public class CompactdClient {
             token = null;
             return false;
         }
+        this.username = username;
         return true;
 
     }
@@ -98,7 +101,7 @@ public class CompactdClient {
         return new String(decodedBytes, "UTF-8");
     }
 
-    private boolean isTokenValid (String token) {
+    public boolean isTokenValid (String token) {
         try {
             JSONObject decoded = decode(token);
             return decoded != null && (System.currentTimeMillis() + 1000 * 60 * 60)
@@ -148,5 +151,9 @@ public class CompactdClient {
             e.printStackTrace();
             return "local_";
         }
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

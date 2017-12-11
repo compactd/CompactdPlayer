@@ -1,7 +1,9 @@
 package io.compactd.player;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import com.couchbase.lite.CouchbaseLiteException;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPreviousButton.setOnClickListener(this);
 
         String remote = PreferenceUtil.getInstance(this).getRemoteUrl();
-        Log.d(TAG, "onCreate: " + remote);
+
         if (!remote.isEmpty()) {
             CheckServerTask task = new CheckServerTask(this);
             task.execute(remote);
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     class ConnectAndSyncTask extends AsyncTask<Pair<String, String>, Float, Boolean> implements CompactdSync.SyncEventListener {
         private Context context;
+        private int progress = 0;
 
         ConnectAndSyncTask(Context context) {
             this.context = context;
@@ -105,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String password = pairs[0].second;
 
             CompactdClient instance = CompactdClient.getInstance();
+            String token = PreferenceUtil.getInstance(context).getSessionToken();
+            if (!token.isEmpty() && instance.isTokenValid(token)) {
+                instance.setToken(token);
+            }
             try {
                 if (!instance.login(username, password)) {
                    return false;
@@ -136,12 +144,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void finished() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(context, "Finnished!!!!!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            Context context = getApplicationContext();
+            PreferenceUtil.getInstance(context).setSessionToken(CompactdClient.getInstance().getToken());
+            PreferenceUtil.getInstance(context).setUsername(CompactdClient.getInstance().getUsername());
         }
 
         @Override
@@ -150,7 +155,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void run() {
                     mProgressBar.setIndeterminate(false);
-                    mProgressBar.setProgress(Math.round(values[0] * 100));
+                    int p = Math.round(values[0] * 100);
+                    if (p > progress) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            mProgressBar.setProgress(p, true);
+                        } else {
+                            mProgressBar.setProgress(p);
+                        }
+                        progress = p;
+                    }
                 }
             });
         }
@@ -227,6 +240,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showCredentialForm() {
+        CompactdClient client = CompactdClient.getInstance();
+        if (client.isTokenValid(PreferenceUtil.getInstance(this).getSessionToken())) {
+            mServerURLText.setVisibility(View.GONE);
+            mConnectButton.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
+            mUsername.setVisibility(View.GONE);
+            mPassword.setVisibility(View.GONE);
+            ConnectAndSyncTask task = new ConnectAndSyncTask(this);
+            task.execute(new Pair<>(mUsername.getText().toString(),
+                    mPassword.getText().toString()));
+            return;
+        }
         mConnectButton.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
         mPassword.setVisibility(View.VISIBLE);
