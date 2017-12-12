@@ -215,15 +215,6 @@ public class CompactdSync {
         options.setCreate(true);
         final Database db = mManager.getDatabase(prefix + database);
 
-        db.delete();
-
-        DatabaseOptions opts = new DatabaseOptions();
-
-        opts.setCreate(true);
-
-        db.open(opts);
-
-
         Replication rep = db.createPullReplication(new URL(mURL + "/database/" + database));
 
         Map<String, Object> headers = new HashMap<>();
