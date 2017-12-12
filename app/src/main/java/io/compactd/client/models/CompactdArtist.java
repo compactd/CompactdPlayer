@@ -2,7 +2,6 @@ package io.compactd.client.models;
 
 import android.util.SparseArray;
 
-import com.couchbase.lite.Attachment;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Document;
@@ -10,7 +9,6 @@ import com.couchbase.lite.Manager;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
-import com.couchbase.lite.Revision;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -20,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import io.compactd.client.CompactdClient;
 
 /**
  * Created by vinz243 on 30/10/2017.
@@ -54,7 +54,7 @@ public class CompactdArtist extends CompactdModel {
     @Override
     public void fetch() throws CouchbaseLiteException {
         if (getState() == ModelState.Fetched) return;
-        Database db = this.mManager.getDatabase(DATABASE_NAME);
+        Database db = this.mManager.getDatabase(databaseName());
         Document doc = db.getDocument(mId);
         fromMap(doc.getProperties());
         mState = ModelState.Fetched;
@@ -117,8 +117,12 @@ public class CompactdArtist extends CompactdModel {
         return findAll(manager, "library/", mode);
     }
 
+    public static String databaseName() {
+        return CompactdClient.getInstance().getPrefix() + DATABASE_NAME;
+    }
+
     public static List<CompactdArtist> findAll (Manager manager, String key, FindMode mode) throws CouchbaseLiteException {
-        Database db = manager.getDatabase(DATABASE_NAME);
+        Database db = manager.getDatabase(databaseName());
         Query query = db.createAllDocumentsQuery();
         query.setStartKey(key);
         query.setEndKey(key + LAST_CHARACTER);

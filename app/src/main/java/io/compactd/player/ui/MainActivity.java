@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.transition.AutoTransition;
-import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.Pair;
 import android.view.View;
@@ -174,6 +174,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     animator.setDuration(DURATION);
                     animator.start();
 
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+                                }
+                            });
+                        }
+                    }, DURATION);
                 }
             });
         }

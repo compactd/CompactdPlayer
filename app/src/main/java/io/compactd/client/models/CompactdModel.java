@@ -5,6 +5,8 @@ import com.couchbase.lite.Manager;
 
 import java.util.Map;
 
+import io.compactd.client.CompactdClient;
+
 /**
  * Created by vinz243 on 30/10/2017.
  */
@@ -39,6 +41,10 @@ public abstract class CompactdModel implements Cloneable{
     CompactdModel(CompactdModel model) {
         mId = model.mId;
         mManager = model.mManager;
+    }
+
+    protected String getDatabaseName (String originalName) {
+        return CompactdClient.getInstance().getPrefix() + originalName;
     }
 
     public String getId() {
