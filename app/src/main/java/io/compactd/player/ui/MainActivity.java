@@ -1,11 +1,18 @@
 package io.compactd.player.ui;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText mUsername;
     private EditText mPassword;
     private Button mPreviousButton;
+    private ConstraintLayout mLayout;
+    private ConstraintLayout mFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mProgressBar    = findViewById(R.id.progressBar);
         mUsername       = findViewById(R.id.usernameEditText);
         mPassword       = findViewById(R.id.passwordEditText);
+
+        mLayout      = findViewById(R.id.mainLayout);
+        mFrameLayout = findViewById(R.id.frameLayout);
 
         mConnectButton.setOnClickListener(this);
 
@@ -92,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     class ConnectAndSyncTask extends AsyncTask<Pair<String, String>, Float, Boolean> implements CompactdSync.SyncEventListener {
+        static final int DURATION = 400;
         private Context context;
         private int progress = 0;
 
@@ -143,6 +156,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Context context = getApplicationContext();
             PreferenceUtil.getInstance(context).setSessionToken(CompactdClient.getInstance().getToken());
             PreferenceUtil.getInstance(context).setUsername(CompactdClient.getInstance().getUsername());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ConstraintSet set = new ConstraintSet();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        AutoTransition autoTransition = new AutoTransition();
+                        autoTransition.setDuration(DURATION);
+
+                        TransitionManager.beginDelayedTransition(mLayout, autoTransition);
+                    }
+                    set.clone(mLayout);
+                    set.setVerticalBias(R.id.frameLayout, 0.3f);
+                    set.applyTo(mLayout);
+
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(mFrameLayout, "alpha", 1.0f, 0.0f);
+                    animator.setDuration(DURATION);
+                    animator.start();
+
+                }
+            });
         }
 
         @Override
