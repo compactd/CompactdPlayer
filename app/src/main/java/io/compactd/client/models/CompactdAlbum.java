@@ -19,6 +19,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import io.compactd.client.CompactdClient;
+
 /**
  * Created by Vincent on 30/10/2017.
  */
@@ -63,7 +65,7 @@ public class CompactdAlbum extends CompactdModel {
     public void fetch() throws CouchbaseLiteException {
         if (getState() == ModelState.Fetched) return;
 
-        Database db = this.mManager.getDatabase(DATABASE_NAME);
+        Database db = this.mManager.getDatabase(databaseName());
         Document doc = db.getDocument(mId);
 
         Map<String, Object> props = new HashMap<>();
@@ -105,8 +107,12 @@ public class CompactdAlbum extends CompactdModel {
         return mArtist;
     }
 
-    public List<CompactdTrack> getTracks (FindMode mode) throws CouchbaseLiteException {
+    List<CompactdTrack> getTracks (FindMode mode) throws CouchbaseLiteException {
         return CompactdTrack.findAll(mManager, getId(), mode);
+    }
+
+    private static String databaseName() {
+        return CompactdClient.getInstance().getPrefix() + DATABASE_NAME;
     }
 
     public int getTrackCount () {
@@ -135,7 +141,7 @@ public class CompactdAlbum extends CompactdModel {
 
     public static List<CompactdAlbum> findAll (Manager manager, String key, FindMode mode) throws CouchbaseLiteException {
         Log.d(TAG, "findAll: key=" + key + ", mode="+ mode.name());
-        Database db = manager.getDatabase(DATABASE_NAME);
+        Database db = manager.getDatabase(databaseName());
         Query query = db.createAllDocumentsQuery();
         query.setStartKey(key);
         query.setEndKey(key + CompactdModel.LAST_CHARACTER);

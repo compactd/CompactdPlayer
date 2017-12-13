@@ -22,7 +22,6 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistViewHolder> {
     private final LayoutInflater mInflater;
 
     ArtistsAdapter(Context context) {
-        Log.d(TAG, "ArtistsAdapter: constructed");
         this.mContext = context;
         this.artists = new ArrayList<>();
         this.mInflater = LayoutInflater.from(context);
@@ -44,7 +43,6 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistViewHolder> {
 
     @Override
     public ArtistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder: ");
         View view = mInflater.inflate(R.layout.recyclerview_artist_item, parent, false);
         return new ArtistViewHolder(view);
     }
@@ -52,7 +50,7 @@ public class ArtistsAdapter extends RecyclerView.Adapter<ArtistViewHolder> {
     @Override
     public void onBindViewHolder(ArtistViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: " + position);
-        holder.bindArtist(this.artists.get(position));
+        holder.bindArtist(artists.get(position));
     }
 
     @Override

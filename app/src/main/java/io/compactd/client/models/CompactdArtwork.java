@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.compactd.client.CompactdClient;
+
 /**
  * Created by vinz243 on 10/11/2017.
  */
@@ -22,8 +24,12 @@ public class CompactdArtwork extends CompactdModel {
     public static final String TAG = "CompactArtwork";
     private String mOwner;
 
-    CompactdArtwork(Manager manager, String id) {
+    public CompactdArtwork(Manager manager, String id) {
         super(manager, id.startsWith("artworks/") ? id : "artworks/" + id);
+    }
+
+    public String databaseName() {
+        return CompactdClient.getInstance().getPrefix() + DATABASE_NAME;
     }
 
     @Override
@@ -35,7 +41,7 @@ public class CompactdArtwork extends CompactdModel {
     @Override
     public void fetch() throws CouchbaseLiteException {
         if (getState() == ModelState.Fetched) return;
-        Database db = this.mManager.getDatabase(DATABASE_NAME);
+        Database db = this.mManager.getDatabase(databaseName());
         Document doc = db.getDocument(mId);
         fromMap(doc.getProperties());
         mState = ModelState.Fetched;
@@ -55,7 +61,7 @@ public class CompactdArtwork extends CompactdModel {
     public InputStream getImage (ArtworkSize size) {
         Log.d(TAG, "getImage: " + mId + ", " + size.getSize());
         try {
-            Database db = this.mManager.getDatabase(DATABASE_NAME);
+            Database db = this.mManager.getDatabase(databaseName());
             Document doc = db.getDocument(getId());
             Log.d(TAG, "getImage: " + doc);
             Revision rev = doc.getCurrentRevision();
@@ -69,4 +75,5 @@ public class CompactdArtwork extends CompactdModel {
         }
         return null;
     }
+
 }

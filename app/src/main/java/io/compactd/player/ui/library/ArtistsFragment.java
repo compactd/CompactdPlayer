@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -73,8 +74,7 @@ public class ArtistsFragment extends Fragment implements LoaderManager.LoaderCal
 
         mArtistRecyclerView = rootView.findViewById(R.id.artists_recyclerview);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         mArtistRecyclerView.setLayoutManager(layoutManager);
 
         mArtistsAdapter = new ArtistsAdapter(getActivity());

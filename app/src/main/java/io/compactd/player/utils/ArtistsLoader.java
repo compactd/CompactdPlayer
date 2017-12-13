@@ -26,10 +26,9 @@ public class ArtistsLoader extends AsyncTaskLoader<List<CompactdArtist>> {
 
     @Override
     public List<CompactdArtist> loadInBackground() {
-        Log.d(TAG, "loadInBackground: ");
         try {
             return CompactdArtist.findAll(CompactdManager.getInstance(getContext()),
-                    CompactdModel.FindMode.Fetch);
+                    CompactdModel.FindMode.OnlyIds);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             return new ArrayList<>();

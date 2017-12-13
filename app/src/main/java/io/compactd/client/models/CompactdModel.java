@@ -47,6 +47,10 @@ public abstract class CompactdModel implements Cloneable{
         return CompactdClient.getInstance().getPrefix() + originalName;
     }
 
+    public Manager getManager () {
+        return mManager;
+    }
+
     public String getId() {
         return mId;
     }
