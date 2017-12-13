@@ -1,15 +1,27 @@
 package io.compactd.player.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+
+import java.io.IOException;
 
 /**
  * Created by vinz243 on 13/12/2017.
  */
 
 public class ImageUtils {
+
+    private static Drawable fallback;
+
+    public static Drawable getFallback (Context context) throws IOException {
+        if (fallback != null) {
+            return fallback;
+        }
+        return fallback = Drawable.createFromStream(context.getAssets().open("album_fallback.jpg"), null);
+    }
     // https://stackoverflow.com/questions/3035692/how-to-convert-a-drawable-to-a-bitmap
     public static Bitmap drawableToBitmap (Drawable drawable) {
         Bitmap bitmap = null;
