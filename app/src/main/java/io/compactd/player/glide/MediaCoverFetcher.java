@@ -7,6 +7,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.data.DataFetcher;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import io.compactd.client.models.ArtworkSize;
@@ -18,6 +19,8 @@ import io.compactd.client.models.CompactdArtwork;
 
 public class MediaCoverFetcher implements DataFetcher<InputStream> {
     private final MediaCover mediaCover;
+    private boolean cancelled = false;
+    private InputStream stream;
 
     public MediaCoverFetcher(MediaCover mediaCover) {
         this.mediaCover = mediaCover;
@@ -27,7 +30,12 @@ public class MediaCoverFetcher implements DataFetcher<InputStream> {
     public void loadData(Priority priority, DataCallback<? super InputStream> callback) {
         CompactdArtwork artwork = mediaCover.getArtwork();
         try {
-            callback.onDataReady(artwork.getImage(ArtworkSize.LARGE));
+            stream = artwork.getImage(ArtworkSize.LARGE);
+            if (cancelled) {
+                callback.onLoadFailed(new RuntimeException("Cancelled"));
+            } else {
+                callback.onDataReady(stream);
+            }
         } catch (NullPointerException e) {
             callback.onLoadFailed(e);
         }
@@ -35,12 +43,18 @@ public class MediaCoverFetcher implements DataFetcher<InputStream> {
 
     @Override
     public void cleanup() {
-
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void cancel() {
-
+        cancelled = true;
     }
 
     @NonNull

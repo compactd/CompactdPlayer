@@ -16,11 +16,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
+import com.bumptech.glide.util.FixedPreloadSizeProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import io.compactd.client.models.CompactdArtist;
 import io.compactd.player.R;
+import io.compactd.player.glide.GlideApp;
+import io.compactd.player.glide.MediaCover;
 import io.compactd.player.utils.ArtistsLoader;
 
 /**
@@ -79,6 +84,15 @@ public class ArtistsFragment extends Fragment implements LoaderManager.LoaderCal
 
         mArtistsAdapter = new ArtistsAdapter(getActivity());
         mArtistRecyclerView.setAdapter(mArtistsAdapter);
+        mArtistRecyclerView.setRecyclerListener(new RecyclerView.RecyclerListener() {
+            @Override
+            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+                ArtistViewHolder artistViewHolder = (ArtistViewHolder) holder;
+                GlideApp.with(holder.itemView).clear(artistViewHolder.getArtistImage());
+            }
+        });
+        FixedPreloadSizeProvider<MediaCover> coverSizeProvider = new FixedPreloadSizeProvider<>(64, 64);
+        RecyclerViewPreloader<MediaCover> preloader = new RecyclerViewPreloader<MediaCover>(GlideApp.with(this), mArtistsAdapter, coverSizeProvider, 2);
 
         return rootView;
     }

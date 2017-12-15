@@ -204,4 +204,12 @@ public class CompactdArtist extends CompactdModel {
         }
     }
 
+    @Override
+    public String toString() {
+        return "CompactdArtist{" +
+                "mId='" + mId + '\'' +
+                ", mState=" + mState +
+                ", mName='" + mName + '\'' +
+                '}';
+    }
 }
