@@ -8,10 +8,34 @@
     tools:context="io.compactd.player.ui.ArtistActivity"
     tools:showIn="@layout/activity_artist">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text" />
+        android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/title_view_height"
+            android:height="@dimen/title_view_height"
+            android:background="@color/cardview_light_background"
+            android:elevation="@dimen/toolbar_elevation"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:paddingLeft="72dp"
+            android:paddingRight="72dp"
+            android:singleLine="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            tools:ignore="UnusedAttribute" />
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/artist_albums"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp" />
+    </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

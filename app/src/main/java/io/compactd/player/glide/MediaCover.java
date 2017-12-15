@@ -29,7 +29,7 @@ public class MediaCover {
         }
 
         if (album != null) {
-            return new CompactdArtwork(album.getManager(), artist.getId());
+            return new CompactdArtwork(album.getManager(), album.getId());
         }
         return null;
     }

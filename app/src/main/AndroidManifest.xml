@@ -22,8 +22,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ArtistActivity"
-            android:label="@string/title_activity_artist"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

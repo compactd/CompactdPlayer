@@ -7,10 +7,13 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
@@ -21,10 +24,12 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdArtist;
+import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
+import io.compactd.player.ui.library.AlbumsAdapter;
 
 public class ArtistActivity extends AppCompatActivity {
 
@@ -40,7 +45,14 @@ public class ArtistActivity extends AppCompatActivity {
     @BindView(R.id.artist_cover_view)
     ImageView artistCoverView;
 
+    @BindView(R.id.artist_albums)
+    RecyclerView artistAlbums;
+
+    @BindView(R.id.title)
+    TextView titleView;
+
     private Unbinder unbinder;
+    private AlbumsAdapter albumsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +81,12 @@ public class ArtistActivity extends AppCompatActivity {
             }
         });
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        artistAlbums.setLayoutManager(layoutManager);
+
+        albumsAdapter = new AlbumsAdapter(this);
+
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         CompactdParcel artist = bundle.getParcelable(BUNDLE_ARTIST_KEY);
@@ -95,9 +113,15 @@ public class ArtistActivity extends AppCompatActivity {
             return;
         }
         Log.d(TAG, "setArtist: "+ model);
-        toolbarLayout.setTitle(model.getName());
-        toolbar.setTitle(model.getName());
+        titleView.setText(model.getName());
+        artistAlbums.setAdapter(albumsAdapter);
         GlideApp.with(this).load(new MediaCover(model)).into(artistCoverView);
+
+        try {
+            albumsAdapter.swapAlbums(model.getAlbums(CompactdModel.FindMode.OnlyIds));
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
