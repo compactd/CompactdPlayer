@@ -16,6 +16,7 @@ import io.compactd.player.ui.ArtistActivity;
  * Created by vinz243 on 12/12/2017.
  */
 
+public class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private static final String TAG = "ArtistViewHolder";
     final TextView artistNameText;
 
@@ -34,14 +35,19 @@ import io.compactd.player.ui.ArtistActivity;
         artistImageView = itemView.findViewById(R.id.artistImage);
         artistBackground = itemView.findViewById(R.id.palette_color_container);
         artistSub = itemView.findViewById(R.id.artist_sub);
+        itemView.setOnClickListener(this);
         // setIsRecyclable(false);
     }
 
     void bindArtist(CompactdArtist compactdArtist) {
-
-
+        artist = compactdArtist;
+    }
 
     @Override
+    public void onClick(View view) {
 
+        Intent intent = new Intent(view.getContext(), ArtistActivity.class);
+        intent.putExtra(ArtistActivity.BUNDLE_ARTIST_KEY, new CompactdParcel<>(artist));
+        view.getContext().startActivity(intent);
     }
 }

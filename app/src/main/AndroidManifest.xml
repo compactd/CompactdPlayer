@@ -19,6 +19,10 @@
         <activity
             android:name=".ui.LibraryActivity"
             android:label="@string/title_activity_library"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.ArtistActivity"
+            android:label="@string/title_activity_artist"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
