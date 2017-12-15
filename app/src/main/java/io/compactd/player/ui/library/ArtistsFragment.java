@@ -3,11 +3,9 @@ package io.compactd.player.ui.library;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +22,8 @@ import java.util.List;
 
 import io.compactd.client.models.CompactdArtist;
 import io.compactd.player.R;
+import io.compactd.player.adapter.ArtistsAdapter;
+import io.compactd.player.adapter.ModelAdapter;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.utils.ArtistsLoader;
@@ -80,19 +80,16 @@ public class ArtistsFragment extends Fragment implements LoaderManager.LoaderCal
         mArtistRecyclerView = rootView.findViewById(R.id.artists_recyclerview);
 
         LinearLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mArtistRecyclerView.setLayoutManager(layoutManager);
 
-        mArtistsAdapter = new ArtistsAdapter(getActivity());
+        mArtistsAdapter = new ArtistsAdapter(getActivity(), ModelAdapter.LayoutType.GridItem);
         mArtistRecyclerView.setAdapter(mArtistsAdapter);
-        mArtistRecyclerView.setRecyclerListener(new RecyclerView.RecyclerListener() {
-            @Override
-            public void onViewRecycled(RecyclerView.ViewHolder holder) {
-                ArtistViewHolder artistViewHolder = (ArtistViewHolder) holder;
-                GlideApp.with(holder.itemView).clear(artistViewHolder.getArtistImage());
-            }
-        });
-        FixedPreloadSizeProvider<MediaCover> coverSizeProvider = new FixedPreloadSizeProvider<>(64, 64);
-        RecyclerViewPreloader<MediaCover> preloader = new RecyclerViewPreloader<MediaCover>(GlideApp.with(this), mArtistsAdapter, coverSizeProvider, 2);
+
+        FixedPreloadSizeProvider<CompactdArtist> coverSizeProvider = new FixedPreloadSizeProvider<>(
+                64, 64);
+        RecyclerViewPreloader<CompactdArtist> preloader = new RecyclerViewPreloader<>(
+                GlideApp.with(this), mArtistsAdapter, coverSizeProvider, 2);
 
         return rootView;
     }
@@ -121,13 +118,12 @@ public class ArtistsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<List<CompactdArtist>> loader, List<CompactdArtist> data) {
-        Log.d(TAG, "onLoadFinished: " + data);
-        mArtistsAdapter.swapArtists(data);
+        mArtistsAdapter.swapItems(data);
     }
 
     @Override
     public void onLoaderReset(Loader<List<CompactdArtist>> loader) {
-        mArtistsAdapter.swapArtists(new ArrayList<CompactdArtist>());
+        mArtistsAdapter.swapItems(new ArrayList<CompactdArtist>());
     }
     
     public interface OnFragmentInteractionListener {

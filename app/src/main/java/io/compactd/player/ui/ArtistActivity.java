@@ -26,10 +26,11 @@ import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
+import io.compactd.player.adapter.ModelAdapter;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
-import io.compactd.player.ui.library.AlbumsAdapter;
+import io.compactd.player.adapter.AlbumsAdapter;
 
 public class ArtistActivity extends AppCompatActivity {
 
@@ -85,7 +86,7 @@ public class ArtistActivity extends AppCompatActivity {
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         artistAlbums.setLayoutManager(layoutManager);
 
-        albumsAdapter = new AlbumsAdapter(this);
+        albumsAdapter = new AlbumsAdapter(this, ModelAdapter.LayoutType.GridItem);
 
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
@@ -118,7 +119,7 @@ public class ArtistActivity extends AppCompatActivity {
         GlideApp.with(this).load(new MediaCover(model)).into(artistCoverView);
 
         try {
-            albumsAdapter.swapAlbums(model.getAlbums(CompactdModel.FindMode.OnlyIds));
+            albumsAdapter.swapItems(model.getAlbums(CompactdModel.FindMode.OnlyIds));
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
