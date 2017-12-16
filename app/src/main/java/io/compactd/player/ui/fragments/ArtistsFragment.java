@@ -1,4 +1,4 @@
-package io.compactd.player.ui.library;
+package io.compactd.player.ui.fragments;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,7 +9,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import io.compactd.player.R;
 import io.compactd.player.adapter.ArtistsAdapter;
 import io.compactd.player.adapter.ModelAdapter;
 import io.compactd.player.glide.GlideApp;
-import io.compactd.player.glide.MediaCover;
 import io.compactd.player.utils.ArtistsLoader;
 
 /**

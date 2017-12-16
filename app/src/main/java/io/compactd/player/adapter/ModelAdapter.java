@@ -16,20 +16,18 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.ImageViewTarget;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.GlideRequest;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.ui.library.ItemViewHolder;
+import io.compactd.player.ui.views.ItemViewHolder;
 import io.compactd.player.utils.ImageUtils;
 
 /**

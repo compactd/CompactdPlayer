@@ -1,4 +1,4 @@
-package io.compactd.player.ui.library;
+package io.compactd.player.ui.fragments;
 
 import android.content.Context;
 import android.os.Bundle;

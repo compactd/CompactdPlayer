@@ -1,4 +1,4 @@
-package io.compactd.player.ui;
+package io.compactd.player.ui.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;

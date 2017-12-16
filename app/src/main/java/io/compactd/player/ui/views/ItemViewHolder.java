@@ -1,4 +1,4 @@
-package io.compactd.player.ui.library;
+package io.compactd.player.ui.views;
 
 
 import android.content.Intent;

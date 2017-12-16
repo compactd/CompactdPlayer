@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     app:statusBarBackground="@android:color/transparent"
-    tools:context="io.compactd.player.ui.ArtistActivity">
+    tools:context="io.compactd.player.ui.activities.ArtistActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"

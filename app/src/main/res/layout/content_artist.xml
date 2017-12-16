@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="io.compactd.player.ui.ArtistActivity"
+    tools:context="io.compactd.player.ui.activities.ArtistActivity"
     tools:showIn="@layout/activity_artist">
 
     <LinearLayout

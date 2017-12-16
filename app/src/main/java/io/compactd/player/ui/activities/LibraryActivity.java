@@ -1,4 +1,4 @@
-package io.compactd.player.ui;
+package io.compactd.player.ui.activities;
 
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
@@ -13,9 +13,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import io.compactd.player.ui.library.AlbumsFragment;
+import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.R;
-import io.compactd.player.ui.library.ArtistsFragment;
+import io.compactd.player.ui.fragments.ArtistsFragment;
 
 public class LibraryActivity extends AppCompatActivity implements ArtistsFragment.OnFragmentInteractionListener{
     /**

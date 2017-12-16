@@ -1,4 +1,4 @@
-package io.compactd.player.ui;
+package io.compactd.player.ui.activities;
 
 import android.graphics.Color;
 import android.os.Build;
