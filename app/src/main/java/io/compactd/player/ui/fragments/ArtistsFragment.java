@@ -1,18 +1,12 @@
 package io.compactd.player.ui.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.Loader;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
-import com.bumptech.glide.util.FixedPreloadSizeProvider;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Manager;
 
@@ -20,15 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.compactd.client.CompactdManager;
-import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdModel;
-import io.compactd.player.R;
-import io.compactd.player.adapter.AlbumsAdapter;
 import io.compactd.player.adapter.ArtistsAdapter;
-import io.compactd.player.adapter.ModelAdapter;
-import io.compactd.player.glide.GlideApp;
-import io.compactd.player.utils.ArtistsLoader;
 
 /**
  * A simple {@link Fragment} subclass.

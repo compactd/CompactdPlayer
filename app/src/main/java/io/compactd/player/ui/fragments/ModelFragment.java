@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,9 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.couchbase.lite.CouchbaseLiteException;
-import com.couchbase.lite.Manager;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
@@ -23,12 +19,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdModel;
-import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.adapter.ModelAdapter;
-import io.compactd.player.adapter.TracksAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,7 +30,7 @@ import io.compactd.player.adapter.TracksAdapter;
  * Use the {@link ModelFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ModelFragment<T extends CompactdModel> extends Fragment {
+public abstract class ModelFragment<T extends CompactdModel> extends Fragment {
     public static final int HORIZONTAL_LAYOUT = 0x01;
     public static final int VERTICAL_LAYOUT = 0x02;
     public static final int GRID_LAYOUT = 0x03;
@@ -59,10 +52,6 @@ public class ModelFragment<T extends CompactdModel> extends Fragment {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
-    public ModelFragment() {
-        // Required empty public constructor
-    }
-
     public static <M extends ModelFragment> M newInstance(Class<M> clazz, @LayoutMode int layout, String startKey) {
         M fragment = null;
         try {
@@ -73,10 +62,12 @@ public class ModelFragment<T extends CompactdModel> extends Fragment {
             e.printStackTrace();
         }
         Bundle args = new Bundle();
+
         args.putInt(ARG_LAYOUT, layout);
         if (startKey != null) {
             args.putString(ARG_STARTKEY, startKey);
         }
+
         fragment.setArguments(args);
         return fragment;
     }

@@ -1,5 +1,6 @@
 package io.compactd.player.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -7,15 +8,20 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import com.bumptech.glide.ListPreloader;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import java.io.IOException;
@@ -39,6 +45,7 @@ import io.compactd.player.utils.ImageUtils;
 
 public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView.Adapter<ItemViewHolder> implements ListPreloader.PreloadModelProvider<M> {
     private static final int MAX_CACHE_SIZE = 25;
+    private static final String TAG = ModelAdapter.class.getSimpleName();
     private final LayoutType layoutType;
     private final LayoutInflater inflater;
     private final GlideRequest<Bitmap> fullRequest;
@@ -70,7 +77,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         GridItem, ListItem
     }
 
-    private final Context context;
+    protected final Context context;
     private final List<M> items;
 
     ModelAdapter(Context context, LayoutType layoutType) {
@@ -118,8 +125,18 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     public void onBindViewHolder(final ItemViewHolder holder, final int position) {
         holder.image.setImageDrawable(null);
         holder.setIsRecyclable(false);
-        final M current = items.get(position);
 
+        if (layoutType == LayoutType.GridItem) {
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int devicewidth = displaymetrics.widthPixels / 3;
+
+            holder.image.getLayoutParams().width = devicewidth;
+            holder.image.getLayoutParams().height = devicewidth;
+        }
+
+
+        final M current = items.get(position);
 
         try {
             current.fetch();
@@ -134,6 +151,17 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
             e.printStackTrace();
         }
 
+
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemSelected(current);
+            }
+        });
+
+    }
+
+    protected void onItemSelected(M current) {
 
     }
 
@@ -154,6 +182,30 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         fullRequest.load(getMediaCover(current))
             .fallback(ImageUtils.getFallback(context))
             .into(new BitmapImageViewTarget(holder.image) {
+                @Override
+                public void getSize(final SizeReadyCallback cb) {
+
+                    super.getSize(new SizeReadyCallback() {
+                        @Override
+                        public void onSizeReady(int width, int height) {
+                            DisplayMetrics displaymetrics = new DisplayMetrics();
+                            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+
+                            if (layoutType == LayoutType.GridItem) {
+                                int devicewidth = displaymetrics.widthPixels / 3;
+
+                                cb.onSizeReady(devicewidth, devicewidth);
+                            } else {
+                                int dp = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, 64, displaymetrics );
+                                Log.d(TAG, "onSizeReady: " + dp);
+                                cb.onSizeReady(dp, dp);
+                            }
+                        }
+                    });
+
+
+                }
+
                 @Override
                 protected void setResource(@Nullable Bitmap resource) {
                     super.setResource(resource);
