@@ -16,9 +16,10 @@ import android.view.MenuItem;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.R;
 import io.compactd.player.ui.fragments.ArtistsFragment;
+import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
 
-public class LibraryActivity extends AppCompatActivity implements ArtistsFragment.OnFragmentInteractionListener{
+public class LibraryActivity extends AppCompatActivity {
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -78,11 +79,6 @@ public class LibraryActivity extends AppCompatActivity implements ArtistsFragmen
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -98,13 +94,13 @@ public class LibraryActivity extends AppCompatActivity implements ArtistsFragmen
         public Fragment getItem(int position) {
             switch(position) {
                 case 0:
-                    return new ArtistsFragment();
+                    return ArtistsFragment.newInstance(ModelFragment.GRID_LAYOUT, null);
                 case 1:
-                    return new AlbumsFragment();
+                    return AlbumsFragment.newInstance(ModelFragment.GRID_LAYOUT, null);
                 case 2:
-                    return new TracksFragment();
+                    return TracksFragment.newInstance(ModelFragment.VERTICAL_LAYOUT, null);
                 default:
-                   return new ArtistsFragment();
+                    return ArtistsFragment.newInstance(ModelFragment.GRID_LAYOUT, null);
             }
         }
 

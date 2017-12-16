@@ -140,7 +140,6 @@ public class CompactdAlbum extends CompactdModel {
     }
 
     public static List<CompactdAlbum> findAll (Manager manager, String key, FindMode mode) throws CouchbaseLiteException {
-        Log.d(TAG, "findAll: key=" + key + ", mode="+ mode.name());
         Database db = manager.getDatabase(databaseName());
         Query query = db.createAllDocumentsQuery();
         query.setStartKey(key);

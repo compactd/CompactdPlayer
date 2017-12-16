@@ -61,15 +61,11 @@ public class CompactdArtwork extends CompactdModel {
     }
 
     public InputStream getImage (ArtworkSize size) {
-        Log.d(TAG, "getImage: " + mId + ", " + size.getSize());
         try {
             Database db = this.mManager.getDatabase(databaseName());
             Document doc = db.getDocument(getId());
-            Log.d(TAG, "getImage: " + doc);
             Revision rev = doc.getCurrentRevision();
-            Log.d(TAG, "getImage: " + rev);
             Attachment att = rev.getAttachment(size.getSize());
-            Log.d(TAG, "getImage: " + att);
             if (att != null) {
                 return att.getContent();
             }

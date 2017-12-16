@@ -10,13 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Manager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdAlbum;
+import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
 import io.compactd.player.adapter.AlbumsAdapter;
@@ -30,28 +33,11 @@ import io.compactd.player.adapter.ModelAdapter;
  * Use the {@link AlbumsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AlbumsFragment extends Fragment {
+public class AlbumsFragment extends ModelFragment<CompactdAlbum> {
 
-    @BindView(R.id.albums_list)
-    RecyclerView albumRecyclerView;
-    private AlbumsAdapter adapter;
 
-    public AlbumsFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment AlbumsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AlbumsFragment newInstance() {
-        AlbumsFragment fragment = new AlbumsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    public static AlbumsFragment newInstance(@LayoutMode int layout, String startKey) {
+        return ModelFragment.newInstance(AlbumsFragment.class, layout, startKey);
     }
 
     @Override
@@ -62,23 +48,21 @@ public class AlbumsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_albums, container, false);
-        ButterKnife.bind(this, view);
+        View root = super.onCreateView(inflater, container, savedInstanceState);
 
-        GridLayoutManager layout = new GridLayoutManager(getContext(), 3);
-        albumRecyclerView.setLayoutManager(layout);
+        Manager manager = CompactdManager.getInstance(getContext());
 
-        adapter = new AlbumsAdapter(getActivity(), ModelAdapter.LayoutType.GridItem);
-        albumRecyclerView.setAdapter(adapter);
+        List<CompactdAlbum> items = new ArrayList<>();
+
         try {
-            List<CompactdAlbum> albums = CompactdAlbum.findAll(
-                    CompactdManager.getInstance(getContext()), CompactdModel.FindMode.OnlyIds);
-            adapter.swapItems(albums);
+            items.addAll(CompactdAlbum.findAll(manager, mStartkey, CompactdModel.FindMode.OnlyIds));
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
-        return view;
+
+        bindModel(AlbumsAdapter.class, items);
+
+        return root;
     }
 
 
