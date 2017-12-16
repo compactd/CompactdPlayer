@@ -20,7 +20,10 @@ import com.couchbase.lite.CouchbaseLiteException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
@@ -35,9 +38,12 @@ import io.compactd.player.utils.ImageUtils;
  */
 
 public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView.Adapter<ItemViewHolder> implements ListPreloader.PreloadModelProvider<M> {
+    private static final int MAX_CACHE_SIZE = 25;
     private final LayoutType layoutType;
     private final LayoutInflater inflater;
     private final GlideRequest<Bitmap> fullRequest;
+    private boolean tintBackground = true;
+    private LinkedHashMap<String, Bitmap> cache = new LinkedHashMap<>();
 
     @NonNull
     @Override
@@ -50,6 +56,14 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     public RequestBuilder<?> getPreloadRequestBuilder(M item) {
         MediaCover cover = getMediaCover(item);
         return fullRequest.clone().thumbnail(0.2f).load(cover);
+    }
+
+    public boolean isTintBackground() {
+        return tintBackground;
+    }
+
+    public void setTintBackground(boolean tintBackground) {
+        this.tintBackground = tintBackground;
     }
 
     public enum LayoutType {
@@ -66,12 +80,22 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
 
         this.inflater    = LayoutInflater.from(context);
         this.layoutType  = layoutType;
-        this.fullRequest = GlideApp.with(context).asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).priority(Priority.LOW);
+        this.fullRequest = GlideApp.with(context).asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .priority(Priority.LOW);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        cache.clear();
     }
 
     public void swapItems (List<M> items) {
         this.items.clear();
         this.items.addAll(items);
+
+        cache.clear();
         notifyDataSetChanged();
     }
     @Override
@@ -114,6 +138,19 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     }
 
     private void loadImage(final M current, final ItemViewHolder holder) throws IOException {
+        String cacheId = getCacheId(current);
+        if (cache.containsKey(cacheId)) {
+            Bitmap resource = cache.get(cacheId);
+            if (tintBackground) {
+                int color = Palette.from(resource).generate().getMutedColor(0xFFFFFF);
+                holder.layout.setBackgroundColor(color);
+            }
+
+            holder.image.setImageBitmap(resource);
+
+            return;
+        }
+
         fullRequest.load(getMediaCover(current))
             .fallback(ImageUtils.getFallback(context))
             .into(new BitmapImageViewTarget(holder.image) {
@@ -123,10 +160,13 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                     if (resource == null) {
                         return;
                     }
-
-                    int color = Palette.from(resource).generate().getMutedColor(0xFFFFFF);
-                    holder.layout.setBackgroundColor(color);
-                    holder.setIsRecyclable(true);
+                    if (tintBackground) {
+                        int color = Palette.from(resource).generate().getMutedColor(0xFFFFFF);
+                        holder.layout.setBackgroundColor(color);
+                    }
+                    cache.put(current.getId(), resource);
+                    
+                    verifyCache();
                 }
 
                 @Override
@@ -135,6 +175,14 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                 }
             });
     }
+    
+    private void verifyCache() {
+        if (cache.size() > MAX_CACHE_SIZE) {
+            cache.remove(cache.entrySet().iterator().next().getKey());
+        }
+    }
+
+    protected abstract String getCacheId(M item);
 
     protected abstract MediaCover getMediaCover(M item);
 

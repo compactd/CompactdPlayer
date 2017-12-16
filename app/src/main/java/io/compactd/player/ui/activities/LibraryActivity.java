@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.R;
 import io.compactd.player.ui.fragments.ArtistsFragment;
+import io.compactd.player.ui.fragments.TracksFragment;
 
 public class LibraryActivity extends AppCompatActivity implements ArtistsFragment.OnFragmentInteractionListener{
     /**
@@ -100,6 +101,8 @@ public class LibraryActivity extends AppCompatActivity implements ArtistsFragmen
                     return new ArtistsFragment();
                 case 1:
                     return new AlbumsFragment();
+                case 2:
+                    return new TracksFragment();
                 default:
                    return new ArtistsFragment();
             }

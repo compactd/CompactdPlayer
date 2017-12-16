@@ -39,6 +39,11 @@ public class ArtistsAdapter extends ModelAdapter<CompactdArtist> {
     }
 
     @Override
+    protected String getCacheId(CompactdArtist item) {
+        return item.getId();
+    }
+
+    @Override
     protected MediaCover getMediaCover(CompactdArtist item) {
         return new MediaCover(item);
     }

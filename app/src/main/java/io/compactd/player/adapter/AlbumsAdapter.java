@@ -15,6 +15,11 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     }
 
     @Override
+    protected String getCacheId(CompactdAlbum item) {
+        return item.getId();
+    }
+
+    @Override
     protected MediaCover getMediaCover(CompactdAlbum item) {
         return new MediaCover(item);
     }
