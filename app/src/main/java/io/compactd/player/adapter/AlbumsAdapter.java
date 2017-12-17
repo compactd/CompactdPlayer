@@ -7,7 +7,6 @@ import io.compactd.client.models.CompactdAlbum;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
 import io.compactd.player.ui.activities.AlbumActivity;
-import io.compactd.player.ui.activities.ArtistActivity;
 
 /**
  * Created by vinz243 on 12/12/2017.
@@ -39,8 +38,8 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     }
 
     @Override
-    protected void onItemSelected(CompactdAlbum current) {
-        super.onItemSelected(current);
+    protected void onItemSelected(CompactdAlbum current, int position) {
+        super.onItemSelected(current, position);
 
         Intent intent = new Intent(context, AlbumActivity.class);
         intent.putExtra(AlbumActivity.BUNDLE_ALBUM_KEY, new CompactdParcel<>(current));

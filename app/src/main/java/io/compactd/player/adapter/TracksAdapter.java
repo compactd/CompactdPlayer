@@ -1,11 +1,12 @@
 package io.compactd.player.adapter;
 
 import android.content.Context;
-import android.content.Intent;
+
+import java.util.Collections;
 
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.service.MediaPlayerService;
+import io.compactd.player.helpers.MusicPlayerRemote;
 
 /**
  * Created by vinz243 on 15/12/2017.
@@ -37,11 +38,9 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     }
 
     @Override
-    protected void onItemSelected(CompactdTrack current) {
-        super.onItemSelected(current);
-        Intent playerIntent = new Intent(context, MediaPlayerService.class);
-        playerIntent.putExtra(MediaPlayerService.KEY_TRACK, current.getId());
-        context.startService(playerIntent);
-
+    protected void onItemSelected(CompactdTrack current, int position) {
+        super.onItemSelected(current, position);
+        MusicPlayerRemote.getInstance(context)
+                .openQueue(items.subList(position, items.size() - 1), 0, true);
     }
 }

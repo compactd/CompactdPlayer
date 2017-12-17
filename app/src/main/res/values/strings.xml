@@ -111,4 +111,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_album">AlbumActivity</string>
+    <string name="player_notification_channel_name">Player</string>
 </resources>

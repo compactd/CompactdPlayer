@@ -14,7 +14,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import com.bumptech.glide.ListPreloader;
 import com.bumptech.glide.Priority;
@@ -26,10 +25,8 @@ import com.couchbase.lite.CouchbaseLiteException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.compactd.client.models.CompactdModel;
 import io.compactd.player.R;
@@ -78,7 +75,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     }
 
     protected final Context context;
-    private final List<M> items;
+    protected final List<M> items;
 
     ModelAdapter(Context context, LayoutType layoutType) {
         super();
@@ -155,13 +152,13 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemSelected(current);
+                onItemSelected(current, position);
             }
         });
 
     }
 
-    protected void onItemSelected(M current) {
+    protected void onItemSelected(M current, int position) {
 
     }
 

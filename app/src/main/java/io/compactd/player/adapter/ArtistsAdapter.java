@@ -39,7 +39,7 @@ public class ArtistsAdapter extends ModelAdapter<CompactdArtist> {
     }
 
     @Override
-    protected void onItemSelected(CompactdArtist artist) {
+    protected void onItemSelected(CompactdArtist artist, int position) {
         Intent intent = new Intent(context, ArtistActivity.class);
         intent.putExtra(ArtistActivity.BUNDLE_ARTIST_KEY, new CompactdParcel<>(artist));
         context.startActivity(intent);
