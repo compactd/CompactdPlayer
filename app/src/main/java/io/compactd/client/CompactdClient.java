@@ -156,4 +156,10 @@ public class CompactdClient {
     public String getUsername() {
         return username;
     }
+
+    public Map<String, String> getHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + getToken());
+        return headers;
+    }
 }
