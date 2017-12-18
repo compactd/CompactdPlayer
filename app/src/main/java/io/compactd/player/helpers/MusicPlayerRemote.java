@@ -19,8 +19,13 @@ public class MusicPlayerRemote {
     private static MusicPlayerRemote sInstance;
     private MediaPlayerService mediaPlayer;
     private boolean serviceBound = false;
+    private ConnectionListener mListener;
 
-    MusicPlayerRemote (Context context) {
+    private interface ConnectionListener {
+        void onBound ();
+    }
+
+    private MusicPlayerRemote(Context context) {
         bindService(context);
     }
 
@@ -32,6 +37,9 @@ public class MusicPlayerRemote {
                 MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) iBinder;
                 mediaPlayer = binder.getService();
                 serviceBound = true;
+                if (mListener != null) {
+                    mListener.onBound();
+                }
             }
 
             @Override
@@ -46,9 +54,16 @@ public class MusicPlayerRemote {
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void openQueue (List<CompactdTrack> tracks, int position, boolean play) {
+    public void openQueue (final List<CompactdTrack> tracks, final int position, final boolean play) {
         if (mediaPlayer != null) {
             mediaPlayer.openQueue(tracks, position, play);
+        } else {
+            mListener = new ConnectionListener() {
+                @Override
+                public void onBound() {
+                    mediaPlayer.openQueue(tracks, position, play);
+                }
+            };
         }
     }
 
