@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.compactd.client.models.CompactdTrack;
@@ -17,12 +18,12 @@ import io.compactd.player.service.MediaPlayerService;
 
 public class MusicPlayerRemote {
     private static MusicPlayerRemote sInstance;
-    private MediaPlayerService mediaPlayer;
+    public MediaPlayerService mediaPlayer;
     private boolean serviceBound = false;
-    private ConnectionListener mListener;
+    private List<ConnectionCallback> mCallbacks = new ArrayList<>();
 
-    private interface ConnectionListener {
-        void onBound ();
+    private interface ConnectionCallback {
+        void onReady ();
     }
 
     private MusicPlayerRemote(Context context) {
@@ -37,8 +38,8 @@ public class MusicPlayerRemote {
                 MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) iBinder;
                 mediaPlayer = binder.getService();
                 serviceBound = true;
-                if (mListener != null) {
-                    mListener.onBound();
+                for (int i = 0; i < mCallbacks.size(); i++) {
+                    mCallbacks.remove(i).onReady();
                 }
             }
 
@@ -54,17 +55,21 @@ public class MusicPlayerRemote {
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void openQueue (final List<CompactdTrack> tracks, final int position, final boolean play) {
-        if (mediaPlayer != null) {
-            mediaPlayer.openQueue(tracks, position, play);
-        } else {
-            mListener = new ConnectionListener() {
-                @Override
-                public void onBound() {
-                    mediaPlayer.openQueue(tracks, position, play);
-                }
-            };
+    private void waitUntilReady(ConnectionCallback cb) {
+        if (isServiceBound()) {
+            cb.onReady();
+            return;
         }
+        mCallbacks.add(cb);
+    }
+
+    public void openQueue (final List<CompactdTrack> tracks, final int position, final boolean play) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.openQueue(tracks, position, play);
+            }
+        });
     }
 
     public boolean isServiceBound() {
@@ -76,5 +81,38 @@ public class MusicPlayerRemote {
             sInstance = new MusicPlayerRemote(context);
         }
         return sInstance;
+    }
+
+    public CompactdTrack getCurrent () {
+        if (isServiceBound()) {
+            return mediaPlayer.getCurrentTrack();
+        }
+        return null;
+    }
+
+    public int getProgress () {
+        return isServiceBound() ? mediaPlayer.getProgress() : 0;
+    }
+
+    public int getDuration () {
+        return isServiceBound() ? mediaPlayer.getDuration() : 0;
+    }
+
+    public void addMediaListener (final MediaPlayerService.MediaListener l) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.addMediaListener(l);
+            }
+        });
+    }
+
+    public void removeMediaListener (final MediaPlayerService.MediaListener l) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.removeMediaListener(l);
+            }
+        });
     }
 }

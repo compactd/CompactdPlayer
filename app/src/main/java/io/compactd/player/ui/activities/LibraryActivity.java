@@ -11,13 +11,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
+import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.service.MediaPlayerService;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ArtistsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
 
-public class LibraryActivity extends AppCompatActivity {
+public class LibraryActivity extends SlidingMusicActivity {
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a

@@ -1,29 +1,19 @@
 package io.compactd.client;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.DatabaseOptions;
-import com.couchbase.lite.Document;
 import com.couchbase.lite.Manager;
-import com.couchbase.lite.Query;
-import com.couchbase.lite.QueryOptions;
-import com.couchbase.lite.android.AndroidContext;
 import com.couchbase.lite.replicator.Replication;
 import com.couchbase.lite.replicator.ReplicationState;
-import com.couchbase.lite.support.ClearableCookieJar;
-import com.couchbase.lite.support.CouchbaseLiteHttpClientFactory;
 import com.couchbase.lite.support.HttpClientFactory;
 import com.couchbase.lite.support.PersistentCookieJar;
-import com.readystatesoftware.chuck.ChuckInterceptor;
-
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +23,6 @@ import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdArtwork;
 import io.compactd.client.models.CompactdHttpClientFactory;
 import io.compactd.client.models.CompactdTrack;
-import okhttp3.CipherSuite;
-import okhttp3.ConnectionSpec;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.OkHttpClient;
-import okhttp3.TlsVersion;
 ///**
 // * Created by Vincent on 30/10/2017.
 // */
@@ -107,7 +91,6 @@ public class CompactdSync {
     private String mToken;
     private String mURL;
     private List<SyncEventListener> mListeners = new ArrayList<SyncEventListener>();
-    private ChuckInterceptor interceptor;
 
     public void setToken(String mToken) {
         this.mToken = mToken;

@@ -19,6 +19,7 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -75,6 +76,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     private static final String TAG = MediaPlayerService.class.getName();
     public static final int MIN_REWIND_DURATION = 4000;
+    public static final int FINISH_EVENT_TRESHOLD = 120;
+    public static final int UPDATE_PROGRESS_INTERVAL = 500;
 
     private MediaPlayer player;
     private List<CompactdTrack> playlist = new ArrayList<>();
@@ -87,6 +90,22 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private int resumePosition;
     private AudioManager audioManager;
 
+    public boolean isPlaying() {
+        return player.isPlaying();
+    }
+
+    public interface MediaListener {
+        void onLoad (CompactdTrack track);
+        void onFinish (CompactdTrack track);
+        void onPause ();
+        void onPlay ();
+        void onRewind ();
+        void onSkip ();
+        void onProgress (int progress, CompactdTrack track);
+    }
+
+    private List<MediaListener> mListeners = new ArrayList<>();
+
     private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -97,10 +116,83 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private int position;
     private NotificationChannel notificationChannel;
 
+    private Runnable updateProgress = new Runnable() {
+        @Override
+        public void run() {
+            final CompactdTrack current = playlist.get(position);
+            if (player != null) {
+                if (player.isPlaying()) {
+                    fireProgress(player.getCurrentPosition(), current);
+                    new Handler().postDelayed(updateProgress, UPDATE_PROGRESS_INTERVAL);
+                } else {
+                    if (player.getCurrentPosition() - player.getDuration() < FINISH_EVENT_TRESHOLD) {
+                        fireFinish(current);
+                    }
+                }
+            }
+        }
+    };
+
     enum PlaybackStatus {
         PLAYING, PAUSED
     }
 
+    private void firePlay () {
+        for (MediaListener l:
+                mListeners) {
+            l.onPlay();
+        }
+    }
+    private void fireRewind () {
+        for (MediaListener l:
+                mListeners) {
+            l.onRewind();
+        }
+    }
+
+    private void fireSkip () {
+        for (MediaListener l:
+                mListeners) {
+            l.onSkip();
+        }
+    }
+
+    private void firePause () {
+        for (MediaListener l:
+                mListeners) {
+            l.onPause();
+        }
+    }
+
+    private void fireLoad (CompactdTrack track) {
+        for (MediaListener l:
+             mListeners) {
+            l.onLoad(track);
+        }
+    }
+
+    private void fireFinish (CompactdTrack track) {
+        for (MediaListener l:
+                mListeners) {
+            l.onFinish(track);
+        }
+    }
+
+    private void fireProgress (int progress, CompactdTrack  current) {
+
+        for (MediaListener l:
+                mListeners) {
+            l.onProgress(progress, current);
+        }
+    }
+
+    public void addMediaListener (MediaListener mediaListener) {
+        mListeners.add(mediaListener);
+    }
+
+    public void removeMediaListener (MediaListener mediaListener) {
+        mListeners.remove(mediaListener);
+    }
 
     private void registerBecomingnNoisyReceiver () {
         IntentFilter filter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
@@ -110,7 +202,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: intent=" + intent + "; flags="+ flags + "; startId=" + startId);
         if (!requestAudioFocus()) {
             stopSelf();
         }
@@ -272,6 +363,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             position = position+ - 1;
         }
         updatePlaylist();
+        fireRewind();
     }
 
     private void removeNotification() {
@@ -287,6 +379,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             position = position + 1;
         }
         updatePlaylist();
+        fireSkip();
     }
 
     private void buildNotification (PlaybackStatus status) {
@@ -354,15 +447,24 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void openQueue (final List<CompactdTrack> tracks, final int startPosition, final boolean startPlaying) {
+        fireFinish(getCurrentTrack());
         playlist.clear();
         playlist.addAll(tracks);
         position = startPosition;
         updatePlaylist();
+        fireLoad(getCurrentTrack());
     }
 
     public void nextTrack () {
+        fireFinish(getCurrentTrack());
         position = position + 1;
         updatePlaylist();
+        fireLoad(getCurrentTrack());
+    }
+
+    public CompactdTrack getCurrentTrack() {
+        if (playlist.isEmpty()) return null;
+        return playlist.get(position);
     }
 
     private void updatePlaylist() {
@@ -421,6 +523,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public void playMedia () {
         if (!player.isPlaying()) {
             player.start();
+            firePlay();
             buildNotification(PlaybackStatus.PLAYING);
         }
     }
@@ -437,6 +540,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         if (player.isPlaying()) {
             player.pause();
             resumePosition = player.getCurrentPosition();
+            firePause();
             buildNotification(PlaybackStatus.PAUSED);
         }
     }
@@ -445,6 +549,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         if (!player.isPlaying()) {
             player.seekTo(resumePosition);
             player.start();
+            firePlay();
         }
     }
 
@@ -525,6 +630,14 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         return audioManager.abandonAudioFocus(this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
+
+    public int getProgress () {
+        return player.getCurrentPosition();
+    }
+
+    public int getDuration () {
+        return player.getDuration();
+    }
 
     public class LocalBinder extends Binder {
         public MediaPlayerService getService () {
