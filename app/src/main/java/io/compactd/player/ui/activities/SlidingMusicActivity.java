@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -32,38 +33,36 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         MediaPlayerService.MediaListener {
 
     public static final int DELAY_MILLIS = 1000;
-    @BindView(R.id.playback_image)
-    ImageView playbackImage;
-
-    @BindView(R.id.caret_image)
-    ImageView caretView;
-
-    @BindView(R.id.sliding_layout)
-    SlidingUpPanelLayout panelLayout;
-
-    @BindView(R.id.sliding_content)
-    FrameLayout mSlidingContent;
-
-    @BindView(R.id.mini_progress)
-    ProgressBar miniProgress;
-
-    @BindView(R.id.track_title)
-    TextView trackTitle;
+    public static final String TAG = SlidingMusicActivity.class.getSimpleName();
 
     private Unbinder unbinder;
     private MusicPlayerRemote remote;
     private Runnable progressRunnable;
     private Handler handler;
     private boolean monitorPlayback;
+    private ImageView playbackImage;
+    private ImageView caretView;
+    private SlidingUpPanelLayout panelLayout;
+    private FrameLayout mSlidingContent;
+    private ProgressBar miniProgress;
+    private TextView trackTitle;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         setContentView(R.layout.sliding_music_layout);
 
-        unbinder = ButterKnife.bind(this);
+        playbackImage   = findViewById(R.id.playback_image);
+        caretView       = findViewById(R.id.caret_image);
+        panelLayout     = findViewById(R.id.sliding_layout);
+        mSlidingContent = findViewById(R.id.sliding_content);
+        miniProgress    = findViewById(R.id.mini_progress);
+        trackTitle      = findViewById(R.id.track_title);
 
         panelLayout.addPanelSlideListener(this);
 
@@ -86,14 +85,26 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
             }
         };
         handler.postDelayed(progressRunnable, DELAY_MILLIS);
+
+        playbackImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (remote.mediaPlayer.isPlaying()) {
+                    remote.mediaPlayer.pauseMedia();
+                } else {
+                    remote.mediaPlayer.playMedia();
+                }
+            }
+        });
     }
 
     @Override
     public void setContentView(int layoutResID) {
         if (layoutResID == R.layout.sliding_music_layout) {
-            super.setContentView(layoutResID);
+            getWindow().setContentView(layoutResID);
         } else {
-            getLayoutInflater().inflate(layoutResID, mSlidingContent, true);
+            Log.d(TAG, "setContentView: " + mSlidingContent);
+            getLayoutInflater().inflate(layoutResID, mSlidingContent);
         }
     }
 

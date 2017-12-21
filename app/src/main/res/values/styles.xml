@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowActionBarOverlay">true</item>
     </style>
+    <style name="AppTheme.CustomAppBarOverlay" parent="AppTheme.AppBarOverlay">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
 
     <style name="AppTheme.TranslucentStatusBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->

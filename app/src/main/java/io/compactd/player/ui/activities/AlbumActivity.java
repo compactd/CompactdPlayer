@@ -32,11 +32,9 @@ import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
 
-public class AlbumActivity extends AppCompatActivity {
+public class AlbumActivity extends SlidingMusicActivity {
 
     public static final String BUNDLE_ALBUM_KEY = "album";
-    @BindView(R.id.frame)
-    FrameLayout frame;
 
     @BindView(R.id.album_cover_view)
     ImageView albumCoverView;

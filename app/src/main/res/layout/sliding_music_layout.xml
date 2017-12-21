@@ -1,34 +1,31 @@
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:umanoPanelHeight="68dp"
-    sothree:umanoShadowHeight="4dp"
-    sothree:umanoParallaxOffset="100dp"
-    sothree:umanoDragView="@+id/drag_view"
     sothree:umanoOverlay="true"
-    sothree:umanoScrollableView="@+id/list">
+    sothree:umanoPanelHeight="68dp"
+    sothree:umanoParallaxOffset="100dp"
+    sothree:umanoShadowHeight="4dp">
 
     <!-- MAIN CONTENT -->
     <FrameLayout
         android:id="@+id/sliding_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"></FrameLayout>
+        android:orientation="vertical" />
 
     <!-- SLIDING LAYOUT -->
     <LinearLayout
+        android:id="@+id/dragView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"
-        android:orientation="vertical"
         android:clickable="true"
         android:focusable="false"
-        android:id="@+id/dragView">
+        android:orientation="vertical">
 
         <!--<ScrollView-->
         <!--android:id="@+id/sv"-->
