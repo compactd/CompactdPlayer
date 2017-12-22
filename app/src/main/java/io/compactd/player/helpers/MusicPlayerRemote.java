@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,11 @@ import io.compactd.player.service.MediaPlayerService;
  */
 
 public class MusicPlayerRemote {
+    public static final String TAG = MusicPlayerRemote.class.getSimpleName();
     private static MusicPlayerRemote sInstance;
     public MediaPlayerService mediaPlayer;
     private boolean serviceBound = false;
-    private List<ConnectionCallback> mCallbacks = new ArrayList<>();
+    private final List<ConnectionCallback> mCallbacks = new ArrayList<>();
 
     private interface ConnectionCallback {
         void onReady ();
@@ -38,8 +40,15 @@ public class MusicPlayerRemote {
                 MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) iBinder;
                 mediaPlayer = binder.getService();
                 serviceBound = true;
-                for (int i = 0; i < mCallbacks.size(); i++) {
-                    mCallbacks.remove(i).onReady();
+
+                synchronized (mCallbacks)  {
+
+                    for (ConnectionCallback cb:
+                            mCallbacks) {
+                        cb.onReady();
+                    }
+
+                    mCallbacks.clear();
                 }
             }
 
@@ -49,7 +58,6 @@ public class MusicPlayerRemote {
                 serviceBound = false;
             }
         };
-
         Intent intent = new Intent(context, MediaPlayerService.class);
         context.startService(intent);
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -60,7 +68,9 @@ public class MusicPlayerRemote {
             cb.onReady();
             return;
         }
-        mCallbacks.add(cb);
+        synchronized (mCallbacks) {
+            mCallbacks.add(cb);
+        }
     }
 
     public void openQueue (final List<CompactdTrack> tracks, final int position, final boolean play) {

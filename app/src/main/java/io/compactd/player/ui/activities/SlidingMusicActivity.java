@@ -1,6 +1,8 @@
 package io.compactd.player.ui.activities;
 
 import android.app.Activity;
+import android.app.FragmentContainer;
+import android.graphics.Color;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -46,6 +49,9 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private FrameLayout mSlidingContent;
     private ProgressBar miniProgress;
     private TextView trackTitle;
+    private FrameLayout layoutContainer;
+    private FrameLayout fragment;
+    private int statusBarColor;
 
 
     @Override
@@ -63,6 +69,8 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         mSlidingContent = findViewById(R.id.sliding_content);
         miniProgress    = findViewById(R.id.mini_progress);
         trackTitle      = findViewById(R.id.track_title);
+        layoutContainer = findViewById(R.id.layout_container);
+        fragment        = findViewById(R.id.player_container);
 
         panelLayout.addPanelSlideListener(this);
 
@@ -96,6 +104,11 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
                 }
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+
     }
 
     @Override
@@ -103,7 +116,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         if (layoutResID == R.layout.sliding_music_layout) {
             getWindow().setContentView(layoutResID);
         } else {
-            Log.d(TAG, "setContentView: " + mSlidingContent);
             getLayoutInflater().inflate(layoutResID, mSlidingContent);
         }
     }
@@ -117,8 +129,21 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
         caretView.setRotation(180 * slideOffset);
-        miniProgress.setAlpha(1 - slideOffset);
-        playbackImage.setAlpha(1 - slideOffset);
+        fadeView(miniProgress, slideOffset);
+        fadeView(playbackImage, slideOffset);
+        fadeView(fragment, 1 - slideOffset);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int c = getWindow().getStatusBarColor();
+        }
+    }
+
+    public void fadeView (View view, float offset) {
+        if (offset == 1)  {
+            view.setVisibility(View.INVISIBLE);
+        } else if (view.getVisibility() == View.INVISIBLE) {
+            view.setVisibility(View.VISIBLE);
+        }
+        view.setAlpha(1 - offset);
     }
 
     @Override

@@ -8,4 +8,6 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="title_view_height">72dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="toolbar_scrim_height">168dp</dimen>
+    <dimen name="status_bar_padding">24dp</dimen>
 </resources>

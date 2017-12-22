@@ -1,0 +1,52 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="io.compactd.player.ui.fragments.PlayerFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <io.compactd.player.ui.views.WidthFitSquareLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/cover_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_launcher_round" />
+
+                <FrameLayout
+                    android:id="@+id/toolbar_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/shadow_statusbar_toolbar" />
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/player_toolbar"
+                        style="@style/AppTheme.WhiteIcons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:minHeight="?attr/actionBarSize"
+                        app:navigationIcon="@drawable/ic_clear_black_24dp" />
+                </FrameLayout>
+
+            </io.compactd.player.ui.views.WidthFitSquareLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+</FrameLayout>
