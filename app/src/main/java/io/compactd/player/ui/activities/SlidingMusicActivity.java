@@ -35,7 +35,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         SlidingUpPanelLayout.PanelSlideListener,
         MediaPlayerService.MediaListener {
 
-    public static final int DELAY_MILLIS = 1000;
+    public static final int DELAY_MILLIS = 1500;
     public static final String TAG = SlidingMusicActivity.class.getSimpleName();
 
     private Unbinder unbinder;
@@ -87,6 +87,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
                 } else {
                     miniProgress.setProgress(remote.getProgress());
                 }
+                onPlaybackProgress(remote.getProgress(), remote.getDuration());
                 if (monitorPlayback) {
                     handler.postDelayed(progressRunnable, DELAY_MILLIS);
                 }
@@ -111,6 +112,10 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
     }
 
+    public void onPlaybackProgress (int progress, int duration) {
+
+    }
+
     @Override
     public void setContentView(int layoutResID) {
         if (layoutResID == R.layout.sliding_music_layout) {
@@ -123,7 +128,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbinder.unbind();
     }
 
     @Override
@@ -168,8 +172,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onPlaybackPause() {
         playbackImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
         if (monitorPlayback) {
             monitorPlayback = false;

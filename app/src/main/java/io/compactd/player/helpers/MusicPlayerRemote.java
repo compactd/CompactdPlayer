@@ -100,6 +100,7 @@ public class MusicPlayerRemote {
         return null;
     }
 
+
     public int getProgress () {
         return isServiceBound() ? mediaPlayer.getProgress() : 0;
     }

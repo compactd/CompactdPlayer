@@ -14,9 +14,7 @@ import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
-import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -27,12 +25,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.compactd.client.CompactdClient;
-import io.compactd.client.CompactdManager;
 import io.compactd.client.models.ArtworkSize;
 import io.compactd.client.models.CompactdArtwork;
 import io.compactd.client.models.CompactdTrack;
@@ -97,7 +92,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public interface MediaListener {
         void onLoad (CompactdTrack track);
         void onFinish (CompactdTrack track);
-        void onPause ();
+        void onPlaybackPause();
         void onPlay ();
         void onRewind ();
         void onSkip ();
@@ -160,7 +155,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private void firePause () {
         for (MediaListener l:
                 mListeners) {
-            l.onPause();
+            l.onPlaybackPause();
         }
     }
 
@@ -637,6 +632,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public int getDuration () {
         return player.getDuration();
+    }
+
+    public void seekTo (int ms)  {
+        player.seekTo(ms);
     }
 
     public class LocalBinder extends Binder {

@@ -48,5 +48,10 @@
             </io.compactd.player.ui.views.WidthFitSquareLayout>
         </FrameLayout>
 
+        <include
+            layout="@layout/fragment_card_player_playback_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </FrameLayout>
