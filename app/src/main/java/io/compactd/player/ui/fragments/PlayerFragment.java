@@ -143,9 +143,9 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             @Override
             public void run() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    progressSlider.setProgress(remote.getProgress() / remote.getDuration(), true);
+                    progressSlider.setProgress(remote.getProgress() / remote.getDuration() * 100, true);
                 } else {
-                    progressSlider.setProgress(remote.getProgress() / remote.getDuration());
+                    progressSlider.setProgress(remote.getProgress() / remote.getDuration() * 100);
                 }
                 SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
                 songTotalTime.setText(format.format(remote.getDuration()));
