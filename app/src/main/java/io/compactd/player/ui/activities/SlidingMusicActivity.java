@@ -54,6 +54,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private FrameLayout layoutContainer;
     private FrameLayout fragment;
     private int statusBarColor;
+    private FrameLayout statusBarDummy;
 
 
     @Override
@@ -73,6 +74,12 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         trackTitle      = findViewById(R.id.track_title);
         layoutContainer = findViewById(R.id.layout_container);
         fragment        = findViewById(R.id.player_container);
+        statusBarDummy  = findViewById(R.id.status_bar_dummy);
+
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarDummy.getLayoutParams().height = getResources().getDimensionPixelSize(resourceId);
+        }
 
         panelLayout.addPanelSlideListener(this);
 

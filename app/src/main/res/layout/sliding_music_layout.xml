@@ -12,11 +12,26 @@
     sothree:umanoShadowHeight="4dp">
 
     <!-- MAIN CONTENT -->
-    <FrameLayout
-        android:id="@+id/sliding_content"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" />
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/status_bar_dummy"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:background="@color/colorPrimaryDark">
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/sliding_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </LinearLayout>
 
     <!-- SLIDING LAYOUT -->
     <FrameLayout
