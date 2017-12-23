@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -55,6 +56,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private FrameLayout fragment;
     private int statusBarColor;
     private FrameLayout statusBarDummy;
+    private LinearLayout dragView;
 
 
     @Override
@@ -75,6 +77,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         layoutContainer = findViewById(R.id.layout_container);
         fragment        = findViewById(R.id.player_container);
         statusBarDummy  = findViewById(R.id.status_bar_dummy);
+        dragView        = findViewById(R.id.dragView);
 
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
@@ -102,6 +105,8 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
+        hidePlayer();
+
     }
 
     public void onPlaybackProgress (int progress, int duration) {
@@ -122,15 +127,20 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
+    void hidePlayer ()  {
+        panelLayout.setPanelHeight(0);
+    }
+
+    void showPlayer () {
+        panelLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.player_panel_height));
+    }
+
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
         caretView.setRotation(180 * slideOffset);
-        fadeView(miniProgress, slideOffset);
-        fadeView(playbackImage, slideOffset);
-        fadeView(fragment, 1 - slideOffset);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int c = getWindow().getStatusBarColor();
-        }
+        fadeView(dragView, slideOffset);
+
+        // fadeView(fragment, 1 - slideOffset);
     }
 
     public void fadeView (View view, float offset) {
@@ -149,7 +159,9 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
     @Override
     public void onMediaLoaded(CompactdTrack track) {
+
         trackTitle.setText(track.getName());
+        showPlayer();
     }
 
     @Override
@@ -175,6 +187,11 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     public void onMediaReady(CompactdTrack track) {
 
+    }
+
+    @Override
+    public void onPlayerDestroyed() {
+        hidePlayer();
     }
 
     @Override

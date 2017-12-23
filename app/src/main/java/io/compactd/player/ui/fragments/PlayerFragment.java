@@ -200,6 +200,11 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     }
 
     @Override
+    public void onPlayerDestroyed() {
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();

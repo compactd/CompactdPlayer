@@ -160,6 +160,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         void onQueueChanged (List<CompactdTrack> queue);
 
         void onMediaReady (CompactdTrack track);
+
+        void onPlayerDestroyed ();
     }
 
     public interface PlaybackListener {
@@ -278,6 +280,11 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private void fireMediaReady (CompactdTrack track) {
         for (MediaListener listener : mMediaListeners) {
             listener.onMediaReady(track);
+        }
+    }
+    private void firePlayerDestroyed ()  {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onPlayerDestroyed();
         }
     }
 
@@ -664,6 +671,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         Log.d(TAG, "onCompletion: " + mediaPlayer);
         stopMedia();
         stopSelf();
+
+        firePlayerDestroyed();
         playerReady = false;
     }
 

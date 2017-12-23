@@ -7,7 +7,7 @@
     android:gravity="bottom"
     sothree:umanoDragView="@id/dragView"
     sothree:umanoOverlay="true"
-    sothree:umanoPanelHeight="68dp"
+    sothree:umanoPanelHeight="@dimen/player_panel_height"
     sothree:umanoParallaxOffset="100dp"
     sothree:umanoShadowHeight="4dp">
 
@@ -39,10 +39,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <fragment
+                android:id="@+id/fragment"
+                android:name="io.compactd.player.ui.fragments.PlayerFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+
         <LinearLayout
             android:id="@+id/dragView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/player_panel_height"
             android:background="#ffffff"
             android:clickable="true"
             android:focusable="false"
@@ -64,29 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="66dp" />
 
-            <ProgressBar
-                android:id="@+id/mini_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:max="100"
-                android:progress="28" />
-
         </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/player_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0"
-            android:visibility="invisible">
-
-            <fragment
-                android:id="@+id/fragment"
-                android:name="io.compactd.player.ui.fragments.PlayerFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
     </FrameLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
