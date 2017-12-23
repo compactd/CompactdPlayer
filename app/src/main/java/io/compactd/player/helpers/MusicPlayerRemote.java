@@ -17,10 +17,11 @@ import io.compactd.player.service.MediaPlayerService;
  * Created by vinz243 on 17/12/2017.
  */
 
+@SuppressWarnings("SynchronizeOnNonFinalField")
 public class MusicPlayerRemote {
     public static final String TAG = MusicPlayerRemote.class.getSimpleName();
     private static MusicPlayerRemote sInstance;
-    public MediaPlayerService mediaPlayer;
+    private MediaPlayerService mediaPlayer;
     private boolean serviceBound = false;
     private final List<ConnectionCallback> mCallbacks = new ArrayList<>();
 
@@ -93,20 +94,57 @@ public class MusicPlayerRemote {
         return sInstance;
     }
 
-    public CompactdTrack getCurrent () {
-        if (isServiceBound()) {
-            return mediaPlayer.getCurrentTrack();
+    public void seekTo (int ms) {
+        if (!isServiceBound()) return;
+        synchronized (mediaPlayer)  {
+            mediaPlayer.seekTo(ms);
         }
-        return null;
     }
 
+
+    public CompactdTrack getCurrent () {
+        synchronized (mediaPlayer)  {
+            if (isServiceBound()) {
+                return mediaPlayer.getCurrentTrack();
+            }
+            return null;
+
+        }
+    }
+
+    public void pauseMedia () {
+        if (!isServiceBound()) return;
+
+        synchronized (mediaPlayer)  {
+            mediaPlayer.pauseMedia();
+        }
+    }
+
+    public void playMedia () {
+        if (!isServiceBound()) return;
+
+        synchronized (mediaPlayer)  {
+            mediaPlayer.playMedia();
+        }
+    }
+
+    public boolean isPlaying () {
+        if (!isServiceBound()) return false;
+
+        synchronized (mediaPlayer)  {
+            return mediaPlayer.isPlaying();
+        }
+    }
 
     public int getProgress () {
         return isServiceBound() ? mediaPlayer.getProgress() : 0;
     }
 
     public int getDuration () {
-        return isServiceBound() ? mediaPlayer.getDuration() : 0;
+        synchronized (mediaPlayer)  {
+            return isServiceBound() ? mediaPlayer.getDuration() : 0;
+        }
+
     }
 
     public void addMediaListener (final MediaPlayerService.MediaListener l) {
@@ -126,4 +164,23 @@ public class MusicPlayerRemote {
             }
         });
     }
+
+    public void addPlaybackListener (final MediaPlayerService.PlaybackListener l) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.addPlaybackListener(l);
+            }
+        });
+    }
+
+    public void removePlaybackListener (final MediaPlayerService.PlaybackListener l) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.removePlaybackListener(l);
+            }
+        });
+    }
+
 }

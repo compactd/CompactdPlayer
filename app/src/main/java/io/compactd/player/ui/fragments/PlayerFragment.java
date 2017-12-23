@@ -27,6 +27,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -41,7 +42,7 @@ import io.compactd.player.service.MediaPlayerService;
 
 import static io.compactd.player.ui.activities.SlidingMusicActivity.DELAY_MILLIS;
 
-public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener {
+public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener {
 
     @BindView(R.id.player_toolbar)
     Toolbar toolbar;
@@ -108,10 +109,10 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         playPauseFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (remote.mediaPlayer.isPlaying()) {
-                    remote.mediaPlayer.pauseMedia();
+                if (remote.isPlaying()) {
+                    remote.pauseMedia();
                 } else {
-                    remote.mediaPlayer.playMedia();
+                    remote.playMedia();
                 }
             }
         });
@@ -119,9 +120,9 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
         progressSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (remote.mediaPlayer.isPlaying())  {
-                    remote.mediaPlayer.seekTo(remote.mediaPlayer.getDuration() * i / 100);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (remote.isPlaying() && fromUser)  {
+                    remote.seekTo(progress * 1000);
                 }
             }
 
@@ -138,24 +139,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
         SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
 
-        handler = new Handler();
-        progressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    progressSlider.setProgress(remote.getProgress() / remote.getDuration() * 100, true);
-                } else {
-                    progressSlider.setProgress(remote.getProgress() / remote.getDuration() * 100);
-                }
-                SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
-                songTotalTime.setText(format.format(remote.getDuration()));
-                songCurrentProgress.setText(format.format(remote.getProgress()));
-                if (monitorPlayback) {
-                    handler.postDelayed(progressRunnable, DELAY_MILLIS);
-                }
-            }
-        };
-
         return rootView;
     }
 
@@ -165,6 +148,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
         remote = MusicPlayerRemote.getInstance(context);
         remote.addMediaListener(this);
+        remote.addPlaybackListener(this);
     }
 
     @Override
@@ -173,7 +157,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     }
 
     @Override
-    public void onLoad(CompactdTrack track) {
+    public void onMediaLoaded(CompactdTrack track) {
         GlideApp.with(this)
             .asBitmap()
             .load(new MediaCover(track.getAlbum()))
@@ -191,51 +175,59 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     }
 
     @Override
+    public void onMediaEnded(CompactdTrack track, @Nullable CompactdTrack next) {
+
+    }
+
+    @Override
+    public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
+
+    }
+
+    @Override
+    public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
+
+    }
+
+    @Override
+    public void onQueueChanged(List<CompactdTrack> queue) {
+
+    }
+
+    @Override
+    public void onMediaReady(CompactdTrack track) {
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
     }
 
     @Override
-    public void onFinish(CompactdTrack track) {
-
-    }
-
-    @Override
-    public void onPlay() {
-        playPauseFab.setImageResource(R.drawable.ic_pause_white_24dp);
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
-    }
-
-    @Override
-    public void onRewind() {
-
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
-    }
-
-    @Override
-    public void onPlaybackPause() {
-        monitorPlayback = false;
+    public void onPlaybackPaused() {
         playPauseFab.setImageResource(R.drawable.ic_play_arrow_black_24dp);
     }
 
     @Override
-    public void onSkip() {
+    public void onPlaybackProgress(CompactdTrack track, int position, int duration) {
 
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
+        SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        songTotalTime.setText(format.format(duration));
+        songCurrentProgress.setText(format.format(position));
+        progressSlider.setMax(duration / 1000);
+        progressSlider.setProgress(position / 1000);
     }
 
     @Override
-    public void onProgress(int progress, CompactdTrack track) {
+    public void onPlaybackResumed() {
+        playPauseFab.setImageResource(R.drawable.ic_pause_white_24dp);
+
+    }
+
+    @Override
+    public void onPlaybackRewinded() {
 
     }
 }

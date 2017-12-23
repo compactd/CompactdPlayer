@@ -73,6 +73,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public static final int MIN_REWIND_DURATION = 4000;
     public static final int FINISH_EVENT_TRESHOLD = 120;
     public static final int UPDATE_PROGRESS_INTERVAL = 500;
+    public static final int UPDATE_TICK = 1000;
 
     private MediaPlayer player;
     private List<CompactdTrack> playlist = new ArrayList<>();
@@ -84,22 +85,92 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private final IBinder binder = new LocalBinder();
     private int resumePosition;
     private AudioManager audioManager;
+    private Handler handler = new Handler();
+    private boolean playerReady;
 
     public boolean isPlaying() {
         return player.isPlaying();
     }
 
-    public interface MediaListener {
-        void onLoad (CompactdTrack track);
-        void onFinish (CompactdTrack track);
-        void onPlaybackPause();
-        void onPlay ();
-        void onRewind ();
-        void onSkip ();
-        void onProgress (int progress, CompactdTrack track);
+    public abstract class AbsMediaListener implements MediaListener {
+
+        @Override
+        public void onMediaLoaded(CompactdTrack track) {
+
+        }
+
+        @Override
+        public void onMediaEnded(CompactdTrack track, @Nullable CompactdTrack next) {
+
+        }
+
+        @Override
+        public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
+
+        }
+
+        @Override
+        public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
+
+        }
+
+        @Override
+        public void onQueueChanged(List<CompactdTrack> queue) {
+
+        }
+
+        @Override
+        public void onMediaReady(CompactdTrack track) {
+
+        }
     }
 
-    private List<MediaListener> mListeners = new ArrayList<>();
+    public interface MediaListener {
+        /**
+         * Called everytime a new media is loaded
+         * @param track
+         */
+        void onMediaLoaded(CompactdTrack track);
+
+        /**
+         * Once a media has finished played and will pass to the next track if any
+         * @param track the finished track
+         * @param next the next track that is going to play, null if no playlist
+         */
+        void onMediaEnded(CompactdTrack track, @Nullable CompactdTrack next);
+
+        /**
+         * When a media is skipped
+         * @param skipped the skipped track
+         * @param next the next track on the playlist that is going to play if any
+         */
+        void onMediaSkipped (CompactdTrack skipped, @Nullable CompactdTrack next);
+
+        /**
+         * Called when a media is rewinded
+         * @param rewinded the media rewinded
+         * @param previous the previous media, which is going to play now
+         */
+        void onMediaRewinded (CompactdTrack rewinded, CompactdTrack previous);
+
+        /**
+         * Called whne the queu changed
+         * @param queue the queue
+         */
+        void onQueueChanged (List<CompactdTrack> queue);
+
+        void onMediaReady (CompactdTrack track);
+    }
+
+    public interface PlaybackListener {
+        void onPlaybackPaused();
+        void onPlaybackProgress(CompactdTrack track, int position, int duration);
+        void onPlaybackResumed();
+        void onPlaybackRewinded ();
+    }
+
+    private final List<MediaListener> mMediaListeners = new ArrayList<>();
+    private final List<PlaybackListener> mPlaybackListeners = new ArrayList<>();
 
     private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver() {
         @Override
@@ -111,82 +182,107 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private int position;
     private NotificationChannel notificationChannel;
 
+    public void addMediaListener (MediaListener listener)  {
+        synchronized (mMediaListeners)  {
+            mMediaListeners.add(listener);
+        }
+    }
+
+    public void removeMediaListener (MediaListener listener) {
+        synchronized (mMediaListeners) {
+            mMediaListeners.remove(listener);
+        }
+    }
+
+    public void addPlaybackListener (PlaybackListener listener) {
+        synchronized (mPlaybackListeners)  {
+            mPlaybackListeners.add(listener);
+            if (!isMonitoringPlayback() && player.isPlaying()) {
+                handler.postDelayed(updateProgress, UPDATE_TICK);
+            }
+        }
+    }
+
+    public void removePlaybackListener (PlaybackListener listener) {
+        synchronized (mPlaybackListeners) {
+            mPlaybackListeners.remove(listener);
+        }
+    }
+
+    private boolean isMonitoringPlayback() {
+        return !mPlaybackListeners.isEmpty();
+    }
+
+
     private Runnable updateProgress = new Runnable() {
         @Override
         public void run() {
             final CompactdTrack current = playlist.get(position);
             if (player != null) {
-                if (player.isPlaying()) {
-                    fireProgress(player.getCurrentPosition(), current);
+                firePlaybackProgress(getCurrentTrack(), getProgress(), getDuration());
+                if (isMonitoringPlayback() && player.isPlaying()) {
                     new Handler().postDelayed(updateProgress, UPDATE_PROGRESS_INTERVAL);
-                } else {
-                    if (player.getCurrentPosition() - player.getDuration() < FINISH_EVENT_TRESHOLD) {
-                        fireFinish(current);
-                    }
                 }
             }
         }
     };
 
+    private void firePlaybackProgress(CompactdTrack currentTrack, int progress, int duration) {
+        for (PlaybackListener listener : mPlaybackListeners) {
+            listener.onPlaybackProgress(currentTrack, progress, duration);
+        }
+    }
+
+    private void firePlaybackPaused () {
+        for (PlaybackListener listener : mPlaybackListeners) {
+            listener.onPlaybackPaused();
+        }
+    }
+
+    private void firePlaybackResumed () {
+        for (PlaybackListener listener : mPlaybackListeners) {
+            listener.onPlaybackResumed();
+        }
+    }
+
+    private void firePlaybackRewind () {
+        for (PlaybackListener listener : mPlaybackListeners) {
+            listener.onPlaybackRewinded();
+        }
+    }
+
+    private void fireMediaLoaded (CompactdTrack track) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onMediaLoaded(track);
+        }
+    }
+
+    private void fireMediaSkipped (CompactdTrack track, CompactdTrack next) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onMediaSkipped(track, next);
+        }
+    }
+
+    private void fireMediaRewinded (CompactdTrack track, CompactdTrack prev) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onMediaRewinded(track, prev);
+        }
+    }
+
+    private void fireQueueChanged (List<CompactdTrack> tracks) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onQueueChanged(tracks);
+        }
+    }
+
+    private void fireMediaReady (CompactdTrack track) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onMediaReady(track);
+        }
+    }
+
     enum PlaybackStatus {
         PLAYING, PAUSED
-    }
-
-    private void firePlay () {
-        for (MediaListener l:
-                mListeners) {
-            l.onPlay();
-        }
-    }
-    private void fireRewind () {
-        for (MediaListener l:
-                mListeners) {
-            l.onRewind();
-        }
-    }
-
-    private void fireSkip () {
-        for (MediaListener l:
-                mListeners) {
-            l.onSkip();
-        }
-    }
-
-    private void firePause () {
-        for (MediaListener l:
-                mListeners) {
-            l.onPlaybackPause();
-        }
-    }
-
-    private void fireLoad (CompactdTrack track) {
-        for (MediaListener l:
-             mListeners) {
-            l.onLoad(track);
-        }
-    }
-
-    private void fireFinish (CompactdTrack track) {
-        for (MediaListener l:
-                mListeners) {
-            l.onFinish(track);
-        }
-    }
-
-    private void fireProgress (int progress, CompactdTrack  current) {
-
-        for (MediaListener l:
-                mListeners) {
-            l.onProgress(progress, current);
-        }
-    }
-
-    public void addMediaListener (MediaListener mediaListener) {
-        mListeners.add(mediaListener);
-    }
-
-    public void removeMediaListener (MediaListener mediaListener) {
-        mListeners.remove(mediaListener);
     }
 
     private void registerBecomingnNoisyReceiver () {
@@ -350,15 +446,17 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private void skipToPrevious() {
         if (player.getCurrentPosition() > MIN_REWIND_DURATION) {
             player.seekTo(0);
+            firePlaybackRewind();
             return;
         }
+        CompactdTrack skipped = playlist.get(position);
         if (position == 0) {
             position = playlist.size() - 1;
         } else {
             position = position+ - 1;
         }
         updatePlaylist();
-        fireRewind();
+        fireMediaRewinded(skipped, playlist.get(position));
     }
 
     private void removeNotification() {
@@ -368,13 +466,14 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void skipToNext() {
+        CompactdTrack skipped = playlist.get(position);
         if (position == playlist.size() - 1) {
             position = 0;
         } else {
             position = position + 1;
         }
         updatePlaylist();
-        fireSkip();
+        fireMediaSkipped(skipped, playlist.get(position));
     }
 
     private void buildNotification (PlaybackStatus status) {
@@ -442,19 +541,23 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void openQueue (final List<CompactdTrack> tracks, final int startPosition, final boolean startPlaying) {
-        fireFinish(getCurrentTrack());
+        CompactdTrack track = getCurrentTrack();
+
         playlist.clear();
         playlist.addAll(tracks);
         position = startPosition;
+
+        fireQueueChanged(tracks);
         updatePlaylist();
-        fireLoad(getCurrentTrack());
+
+        fireMediaSkipped(track, getCurrentTrack());
     }
 
     public void nextTrack () {
-        fireFinish(getCurrentTrack());
+        CompactdTrack skipped = getCurrentTrack();
         position = position + 1;
         updatePlaylist();
-        fireLoad(getCurrentTrack());
+        fireMediaSkipped(skipped, getCurrentTrack());
     }
 
     public CompactdTrack getCurrentTrack() {
@@ -517,46 +620,51 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public void playMedia () {
         if (!player.isPlaying()) {
+            if (!playerReady) {
+                updatePlaylist();
+            }
             player.start();
-            firePlay();
+            firePlaybackResumed();
             buildNotification(PlaybackStatus.PLAYING);
+            handler.postDelayed(updateProgress, UPDATE_TICK);
         }
     }
 
     public void stopMedia () {
-        if (player == null) return;
-        if (player.isPlaying()) {
+        if (player != null && player.isPlaying()) {
             player.stop();
             buildNotification(PlaybackStatus.PAUSED);
         }
     }
 
     public void pauseMedia () {
-        if (player.isPlaying()) {
+        if (player != null && player.isPlaying()) {
             player.pause();
             resumePosition = player.getCurrentPosition();
-            firePause();
+            firePlaybackPaused();
             buildNotification(PlaybackStatus.PAUSED);
         }
     }
 
     void resumeMedia () {
-        if (!player.isPlaying()) {
+        if (player != null && !player.isPlaying()) {
             player.seekTo(resumePosition);
             player.start();
-            firePlay();
+            firePlaybackResumed();
         }
     }
 
     @Override
     public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
-
+        Log.d(TAG, "onBufferingUpdate: " + mediaPlayer + "; " + i);
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.d(TAG, "onCompletion: " + mediaPlayer);
         stopMedia();
         stopSelf();
+        playerReady = false;
     }
 
     @Override
@@ -583,12 +691,16 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        Log.d(TAG, "onPrepared: " + mediaPlayer);
+        playerReady = true;
+        fireMediaLoaded(getCurrentTrack());
         playMedia();
     }
 
     @Override
     public void onSeekComplete(MediaPlayer mediaPlayer) {
-
+        Log.d(TAG, "onSeekComplete: " + mediaPlayer);
+        firePlaybackProgress(getCurrentTrack(), getProgress(), getDuration());
     }
 
     @Override
@@ -596,16 +708,16 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         switch (focusState) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (player == null) setupMediaPlayer();
-                else if (!player.isPlaying()) player.start();
+                else if (!player.isPlaying()) resumeMedia();
                 player.setVolume(1.0f, 1.0f);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                if (player.isPlaying()) player.stop();
+                if (player.isPlaying()) stopMedia();
                 player.release();
                 player = null;
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                if (player.isPlaying()) player.pause();
+                if (player.isPlaying()) pauseMedia();
                 break;
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
                 if (player.isPlaying()) player.setVolume(0.1f, 0.1f);
@@ -635,7 +747,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void seekTo (int ms)  {
-        player.seekTo(ms);
+        Log.d(TAG, "seekTo: " + ms + "/" + player.getDuration());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            player.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
+        } else {
+            player.seekTo(ms);
+
+        }
     }
 
     public class LocalBinder extends Binder {

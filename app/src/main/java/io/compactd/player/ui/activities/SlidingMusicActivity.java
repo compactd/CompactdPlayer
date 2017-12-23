@@ -19,6 +19,8 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -33,9 +35,9 @@ import io.compactd.player.service.MediaPlayerService;
 
 public abstract class SlidingMusicActivity extends AppCompatActivity implements
         SlidingUpPanelLayout.PanelSlideListener,
-        MediaPlayerService.MediaListener {
+        MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener {
 
-    public static final int DELAY_MILLIS = 1500;
+    public static final int DELAY_MILLIS = 1000;
     public static final String TAG = SlidingMusicActivity.class.getSimpleName();
 
     private Unbinder unbinder;
@@ -76,32 +78,15 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
         remote = MusicPlayerRemote.getInstance(this);
         remote.addMediaListener(this);
-
-        handler = new Handler();
-        progressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                miniProgress.setMax(remote.getDuration());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    miniProgress.setProgress(remote.getProgress(), true);
-                } else {
-                    miniProgress.setProgress(remote.getProgress());
-                }
-                onPlaybackProgress(remote.getProgress(), remote.getDuration());
-                if (monitorPlayback) {
-                    handler.postDelayed(progressRunnable, DELAY_MILLIS);
-                }
-            }
-        };
-        handler.postDelayed(progressRunnable, DELAY_MILLIS);
+        remote.addPlaybackListener(this);
 
         playbackImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (remote.mediaPlayer.isPlaying()) {
-                    remote.mediaPlayer.pauseMedia();
+                if (remote.isPlaying()) {
+                    remote.pauseMedia();
                 } else {
-                    remote.mediaPlayer.playMedia();
+                    remote.playMedia();
                 }
             }
         });
@@ -156,58 +141,54 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoad(CompactdTrack track) {
+    public void onMediaLoaded(CompactdTrack track) {
         trackTitle.setText(track.getName());
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
     }
 
     @Override
-    public void onFinish(CompactdTrack track) {
-        if (monitorPlayback) {
-            monitorPlayback = false;
-        }
+    public void onMediaEnded(CompactdTrack track, @Nullable CompactdTrack next) {
+
     }
 
     @Override
-    public void onPlaybackPause() {
+    public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
+
+    }
+
+    @Override
+    public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
+
+    }
+
+    @Override
+    public void onQueueChanged(List<CompactdTrack> queue) {
+
+    }
+
+    @Override
+    public void onMediaReady(CompactdTrack track) {
+
+    }
+
+    @Override
+    public void onPlaybackPaused() {
         playbackImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-        if (monitorPlayback) {
-            monitorPlayback = false;
-        }
     }
 
     @Override
-    public void onPlay() {
+    public void onPlaybackProgress(CompactdTrack track, int position, int duration) {
+        miniProgress.setMax(duration);
+        miniProgress.setProgress(position);
+    }
+
+    @Override
+    public void onPlaybackResumed() {
         playbackImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_white_24dp));
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
-    }
-
-    @Override
-    public void onRewind() {
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
 
     }
 
     @Override
-    public void onSkip() {
-        if (!monitorPlayback) {
-            monitorPlayback = true;
-            handler.postDelayed(progressRunnable, DELAY_MILLIS);
-        }
-    }
-
-    @Override
-    public void onProgress(int progress, CompactdTrack track) {
-        miniProgress.setMax(remote.getDuration());
-        miniProgress.setProgress(progress);
+    public void onPlaybackRewinded() {
+        miniProgress.setProgress(0);
     }
 }
