@@ -156,6 +156,18 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             }
         });
         nextButton.setColorFilter(Color.BLACK);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                remote.skipToNext();
+            }
+        });
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                remote.rewind();
+            }
+        });
 
         progressSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

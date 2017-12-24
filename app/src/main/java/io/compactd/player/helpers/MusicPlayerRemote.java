@@ -43,6 +43,24 @@ public class MusicPlayerRemote {
         return queue.subList(skipItems, queue.size());
     }
 
+    public void skipToNext() {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.skipToNext();
+            }
+        });
+    }
+
+    public void rewind () {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.skipToPrevious();
+            }
+        });
+    }
+
     private interface ConnectionCallback {
         void onReady ();
     }

@@ -456,7 +456,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         });
     }
 
-    private void skipToPrevious() {
+    public void skipToPrevious() {
         if (player.getCurrentPosition() > MIN_REWIND_DURATION) {
             player.seekTo(0);
             firePlaybackRewind();
@@ -478,7 +478,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         
     }
 
-    private void skipToNext() {
+    public void skipToNext() {
         CompactdTrack skipped = playlist.get(position);
         if (position == playlist.size() - 1) {
             position = 0;
