@@ -13,6 +13,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.ImageViewTarget;
+import com.couchbase.lite.CouchbaseLiteException;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -35,10 +41,14 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
+import io.compactd.player.adapter.ModelAdapter;
+import io.compactd.player.adapter.TracksAdapter;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
+import io.compactd.player.ui.activities.SlidingMusicActivity;
+import io.compactd.player.ui.views.WidthFitSquareLayout;
 
 import static io.compactd.player.ui.activities.SlidingMusicActivity.DELAY_MILLIS;
 
@@ -55,29 +65,55 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @BindView(R.id.player_play_pause_fab)
     FloatingActionButton playPauseFab;
+
     @BindView(R.id.player_prev_button)
     ImageButton prevButton;
+
     @BindView(R.id.player_next_button)
     ImageButton nextButton;
+
     @BindView(R.id.player_repeat_button)
     ImageButton repeatButton;
+
     @BindView(R.id.player_shuffle_button)
     ImageButton shuffleButton;
 
     @BindView(R.id.player_progress_slider)
     SeekBar progressSlider;
+
     @BindView(R.id.player_song_total_time)
     TextView songTotalTime;
+
     @BindView(R.id.player_song_current_progress)
     TextView songCurrentProgress;
 
     @BindView(R.id.player_footer_frame)
     LinearLayout playerFooterFrame;
+
+    @BindView(R.id.player_sliding_layout)
+    SlidingUpPanelLayout slidingUpPanelLayout;
+
+    @BindView(R.id.cover_layout)
+    WidthFitSquareLayout widthFitSquareLayout;
+
+    @BindView(R.id.image)
+    ImageView currentImage;
+
+    @BindView(R.id.text)
+    TextView currentText;
+
+    @BindView(R.id.title)
+    TextView currentTitle;
+
+    @BindView(R.id.player_recycler_view)
+    RecyclerView recyclerView;
+
     private Unbinder unbinder;
     private MusicPlayerRemote remote;
     private boolean monitorPlayback = false;
     private Runnable progressRunnable;
     private Handler handler;
+    private TracksAdapter tracksAdapter;
 
     public PlayerFragment() {
     }
@@ -137,9 +173,32 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             }
         });
 
-        SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        setupPanelHeight();
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        tracksAdapter = new TracksAdapter(getContext(), ModelAdapter.LayoutType.ListItem);
+        tracksAdapter.setTintBackground(false);
+        recyclerView.setAdapter(tracksAdapter);
 
         return rootView;
+    }
+
+    private void setupPanelHeight() {
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int topMargin = getResources().getDimensionPixelSize(resourceId);
+
+        final int availablePanelHeight = slidingUpPanelLayout.getHeight() - layout.getHeight() + topMargin;
+        final int minPanelHeight = getResources().getDimensionPixelSize(R.dimen.min_player_panel_height) + topMargin;
+        if (availablePanelHeight < minPanelHeight) {
+            widthFitSquareLayout.getLayoutParams().height = widthFitSquareLayout.getHeight() - (minPanelHeight - availablePanelHeight);
+            widthFitSquareLayout.forceSquare(false);
+        }
+        slidingUpPanelLayout.setPanelHeight(Math.max(minPanelHeight, availablePanelHeight));
+
+       // ((SlidingMusicActivity) getActivity()).setAntiDragView(fragment.slidingUpPanelLayout.findViewById(R.id.player_panel));
+
     }
 
     @Override
@@ -158,6 +217,11 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @Override
     public void onMediaLoaded(CompactdTrack track) {
+        try {
+            track.fetch();
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
         GlideApp.with(this)
             .asBitmap()
             .load(new MediaCover(track.getAlbum()))
@@ -172,6 +236,10 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                 }
             });
 
+        currentText.setText(track.getArtist().getName());
+        currentTitle.setText(track.getName());
+        currentImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        currentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_volume_up_black_24dp));
     }
 
     @Override
@@ -191,7 +259,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @Override
     public void onQueueChanged(List<CompactdTrack> queue) {
-
+        tracksAdapter.swapItems(queue);
     }
 
     @Override
@@ -234,5 +302,12 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     @Override
     public void onPlaybackRewinded() {
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        MusicPlayerRemote.getInstance(getContext()).removeMediaListener(this);
+        MusicPlayerRemote.getInstance(getContext()).removePlaybackListener(this);
     }
 }

@@ -112,4 +112,5 @@
     </string>
     <string name="title_activity_album">AlbumActivity</string>
     <string name="player_notification_channel_name">Player</string>
+    <string name="up_next">Up next</string>
 </resources>

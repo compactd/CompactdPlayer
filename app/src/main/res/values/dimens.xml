@@ -13,4 +13,5 @@
     <dimen name="fab_media_controller_container_height">120dp</dimen>
     <dimen name="progress_container_height">20dp</dimen>
     <dimen name="player_panel_height">68dp</dimen>
+    <dimen name="min_player_panel_height">96dp</dimen>
 </resources>

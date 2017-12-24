@@ -5,54 +5,142 @@
     android:layout_height="match_parent"
     tools:context="io.compactd.player.ui.fragments.PlayerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <LinearLayout
-        android:id="@+id/layout"
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        xmlns:sothree="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/player_sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:clickable="false"
+        android:focusable="true"
+        android:gravity="bottom"
+        sothree:umanoFadeColor="#00000000"
+        sothree:umanoOverlay="true"
+        sothree:umanoPanelHeight="68dp"
+        sothree:umanoScrollableView="@+id/player_recycler_view"
+        sothree:umanoShadowHeight="0dp">
 
+        <!-- TODO: Update blank fragment layout -->
+       <FrameLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">
+           <View
+               android:layout_height="match_parent"
+               android:layout_width="match_parent"
+               android:background="@color/cardview_light_background" />
+           <LinearLayout
+               android:id="@+id/layout"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:orientation="vertical">
+
+               <FrameLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:background="@color/cardview_light_background">
+
+                   <io.compactd.player.ui.views.WidthFitSquareLayout
+                       android:id="@+id/cover_layout"
+                       android:layout_width="match_parent"
+                       android:layout_height="match_parent">
+
+                       <ImageView
+                           android:id="@+id/cover_view"
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent"
+                           android:scaleType="centerCrop"
+                           android:src="@mipmap/ic_launcher_round" />
+
+                       <FrameLayout
+                           android:id="@+id/toolbar_container"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content">
+
+                           <include layout="@layout/shadow_statusbar_toolbar" />
+
+                           <android.support.v7.widget.Toolbar
+                               android:id="@+id/player_toolbar"
+                               style="@style/AppTheme.WhiteIcons"
+                               android:layout_width="match_parent"
+                               android:layout_height="wrap_content"
+                               android:background="@android:color/transparent"
+                               android:minHeight="?android:attr/actionBarSize"
+                               app:navigationIcon="@drawable/ic_clear_black_24dp" />
+                       </FrameLayout>
+
+                   </io.compactd.player.ui.views.WidthFitSquareLayout>
+               </FrameLayout>
+
+               <include
+                   layout="@layout/fragment_card_player_playback_controls"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content" />
+
+           </LinearLayout>
+       </FrameLayout>
         <FrameLayout
+            android:id="@+id/player_panel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/cardview_light_background">
+            android:layout_height="wrap_content">
 
-            <io.compactd.player.ui.views.WidthFitSquareLayout
+            <android.support.v7.widget.CardView
+                android:id="@+id/playing_queue_card"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="@dimen/status_bar_padding"
+                app:cardBackgroundColor="@color/cardview_light_background"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="false">
 
-                <ImageView
-                    android:id="@+id/cover_view"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/ic_launcher_round" />
-
-                <FrameLayout
-                    android:id="@+id/toolbar_container"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
-                    <include layout="@layout/shadow_statusbar_toolbar" />
+                    <!--This is necessary for the drag sorting to work at the top-->
+                    <View
+                        android:id="@+id/draggable_area"
+                        android:layout_width="72dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/card_content"
+                        android:layout_alignTop="@+id/card_content"
+                        android:layout_marginTop="120dp" />
 
-                    <android.support.v7.widget.Toolbar
-                        android:id="@+id/player_toolbar"
-                        style="@style/AppTheme.WhiteIcons"
+                    <LinearLayout
+                        android:id="@+id/card_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:minHeight="?attr/actionBarSize"
-                        app:navigationIcon="@drawable/ic_clear_black_24dp" />
-                </FrameLayout>
+                        android:orientation="vertical">
 
-            </io.compactd.player.ui.views.WidthFitSquareLayout>
+                        <include
+                            android:id="@+id/current_song"
+                            layout="@layout/list_item" />
+
+                        <TextView
+                            android:id="@+id/player_queue_sub_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:text="@string/up_next"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="?android:textColorSecondary" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/player_recycler_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="8dp"
+                            android:requiresFadingEdge="vertical" />
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
         </FrameLayout>
-
-        <include
-            layout="@layout/fragment_card_player_playback_controls"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 </FrameLayout>

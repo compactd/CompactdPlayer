@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,20 @@ public class MusicPlayerRemote {
     private MediaPlayerService mediaPlayer;
     private boolean serviceBound = false;
     private final List<ConnectionCallback> mCallbacks = new ArrayList<>();
+    private ServiceConnection mServiceConnection;
+
+    public void stopMedia () {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.stopMedia();
+            }
+        });
+    }
+
+    public void destroyMedia (Context context) {
+        context.unbindService(mServiceConnection);
+    }
 
     private interface ConnectionCallback {
         void onReady ();
@@ -34,7 +47,7 @@ public class MusicPlayerRemote {
     }
 
     private void bindService(Context context) {
-        ServiceConnection serviceConnection = new ServiceConnection() {
+        mServiceConnection = new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -61,7 +74,7 @@ public class MusicPlayerRemote {
         };
         Intent intent = new Intent(context, MediaPlayerService.class);
         context.startService(intent);
-        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        context.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void waitUntilReady(ConnectionCallback cb) {

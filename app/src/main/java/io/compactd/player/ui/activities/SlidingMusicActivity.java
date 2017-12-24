@@ -1,17 +1,12 @@
 package io.compactd.player.ui.activities;
 
-import android.app.Activity;
-import android.app.FragmentContainer;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,8 +17,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
@@ -125,6 +118,12 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        remote.removeMediaListener(this);
+        remote.removePlaybackListener(this);
+
+        remote.stopMedia();
+
+        remote = null;
     }
 
     void hidePlayer ()  {
@@ -214,5 +213,14 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     public void onPlaybackRewinded() {
         miniProgress.setProgress(0);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (panelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED)  {
+            panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+          finishAffinity();
+        }
     }
 }
