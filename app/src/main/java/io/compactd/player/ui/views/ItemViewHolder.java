@@ -25,9 +25,6 @@ import io.compactd.player.utils.ImageUtils;
  */
 
 public class ItemViewHolder extends RecyclerView.ViewHolder {
-    private static final String TAG = "AlbumViewHolder";
-
-    private final Unbinder unbinder;
 
     @BindView(R.id.title)
     public TextView title;
@@ -41,11 +38,10 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.image)
     public ImageView image;
 
-    private CompactdAlbum album;
 
     public ItemViewHolder(View itemView) {
         super(itemView);
-        unbinder = ButterKnife.bind(this, itemView);
+        ButterKnife.bind(this, itemView);
 
         // setIsRecyclable(false);
     }

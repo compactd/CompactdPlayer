@@ -42,6 +42,7 @@ import butterknife.Unbinder;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.adapter.ModelAdapter;
+import io.compactd.player.adapter.PlaylistItemAdapter;
 import io.compactd.player.adapter.TracksAdapter;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
@@ -116,7 +117,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     private boolean monitorPlayback = false;
     private Runnable progressRunnable;
     private Handler handler;
-    private TracksAdapter tracksAdapter;
+    private PlaylistItemAdapter tracksAdapter;
 
     public PlayerFragment() {
     }
@@ -193,8 +194,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        tracksAdapter = new TracksAdapter(getContext(), ModelAdapter.LayoutType.ListItem);
-        tracksAdapter.setTintBackground(false);
+        tracksAdapter = new PlaylistItemAdapter(getContext());
         recyclerView.setAdapter(tracksAdapter);
 
         return rootView;
@@ -265,19 +265,19 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @Override
     public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
-        tracksAdapter.swapItems(remote.getPlaylist(1));
+        tracksAdapter.swapDataSet(remote.getPlaylist(1));
     }
 
     @Override
     public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
-        tracksAdapter.swapItems(remote.getPlaylist(1));
+        tracksAdapter.swapDataSet(remote.getPlaylist(1));
 
     }
 
     @Override
     public void onQueueChanged(List<CompactdTrack> queue) {
 
-        tracksAdapter.swapItems(queue.subList(1, queue.size()));
+        tracksAdapter.swapDataSet(queue.subList(1, queue.size()));
     }
 
     @Override

@@ -162,7 +162,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
 
     }
 
-    private void loadImage(final M current, final ItemViewHolder holder) throws IOException {
+    protected void loadImage(final M current, final ItemViewHolder holder) throws IOException {
         String cacheId = getCacheId(current);
         if (cache.containsKey(cacheId)) {
             Bitmap resource = cache.get(cacheId);

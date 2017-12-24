@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        tools:ignore="UnusedAttribute,UselessParent">
+
+        <TextView
+            android:id="@+id/playlist_position"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="0dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>
