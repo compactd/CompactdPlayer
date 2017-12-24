@@ -92,6 +92,12 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         return player.isPlaying();
     }
 
+    public List<CompactdTrack> getQueue() {
+        ArrayList<CompactdTrack> tracks = new ArrayList<>();
+        tracks.addAll(playlist.subList(position, playlist.size()));
+        return tracks;
+    }
+
     public abstract class AbsMediaListener implements MediaListener {
 
         @Override
@@ -573,12 +579,16 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void updatePlaylist() {
+        if (playlist.isEmpty()) return;
+
         final CompactdTrack track = playlist.get(position);
+
         try {
             track.fetch();
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
+
         player.reset();
         setDataSource(track);
         player.prepareAsync();

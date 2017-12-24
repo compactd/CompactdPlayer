@@ -127,7 +127,9 @@
             android:id="@+id/player_play_pause_fab"
             style="@style/Fab"
             android:layout_centerInParent="true"
+            app:backgroundTint="@color/cardview_light_background"
             app:elevation="4dp"
+            app:fabSize="normal"
             app:pressedTranslationZ="2dp"
             app:srcCompat="@drawable/ic_pause_white_24dp" />
 

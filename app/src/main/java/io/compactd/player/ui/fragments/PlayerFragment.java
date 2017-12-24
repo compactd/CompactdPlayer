@@ -96,17 +96,20 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     @BindView(R.id.cover_layout)
     WidthFitSquareLayout widthFitSquareLayout;
 
-    @BindView(R.id.image)
+    @BindView(R.id.current_image)
     ImageView currentImage;
 
-    @BindView(R.id.text)
+    @BindView(R.id.current_text)
     TextView currentText;
 
-    @BindView(R.id.title)
+    @BindView(R.id.current_title)
     TextView currentTitle;
 
     @BindView(R.id.player_recycler_view)
     RecyclerView recyclerView;
+
+    @BindView(R.id.background_view)
+    View backgroundView;
 
     private Unbinder unbinder;
     private MusicPlayerRemote remote;
@@ -231,6 +234,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                     if (resource == null) return;
                     int color = Palette.from(resource).generate().getLightMutedColor(Color.TRANSPARENT);
                     playerFooterFrame.setBackgroundColor(color);
+                    backgroundView.setBackgroundColor(color);
 
                     super.setResource(resource);
                 }
@@ -249,17 +253,19 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @Override
     public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
-
+        tracksAdapter.swapItems(remote.getPlaylist(1));
     }
 
     @Override
     public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
+        tracksAdapter.swapItems(remote.getPlaylist(1));
 
     }
 
     @Override
     public void onQueueChanged(List<CompactdTrack> queue) {
-        tracksAdapter.swapItems(queue);
+
+        tracksAdapter.swapItems(queue.subList(1, queue.size()));
     }
 
     @Override

@@ -38,6 +38,11 @@ public class MusicPlayerRemote {
         context.unbindService(mServiceConnection);
     }
 
+    public List<CompactdTrack> getPlaylist(int skipItems) {
+        List<CompactdTrack> queue = mediaPlayer.getQueue();
+        return queue.subList(skipItems, queue.size());
+    }
+
     private interface ConnectionCallback {
         void onReady ();
     }
