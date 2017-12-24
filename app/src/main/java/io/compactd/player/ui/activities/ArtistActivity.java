@@ -35,7 +35,7 @@ import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
 
-public class ArtistActivity extends AppCompatActivity {
+public class ArtistActivity extends SlidingMusicActivity {
 
     public static final String BUNDLE_ARTIST_KEY = "artist";
     private static final String TAG = ArtistActivity.class.getSimpleName();
