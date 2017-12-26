@@ -177,31 +177,29 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         snackbar.setAction("Cancel", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                timer.cancel();
-                timer.purge();
-                executor.shutdownNow();
-                snackbar.dismiss();
-                fab.show();
+            timer.cancel();
+            timer.purge();
+            executor.shutdownNow();
+            snackbar.dismiss();
+            fab.show();
             }
         });
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        Log.d(TAG, "run: " + executor.getTaskCount() + "/" + executor.getCompletedTaskCount());
-                        snackbar.setText("Syncing tracks ("+executor.getCompletedTaskCount() + "/"+executor.getTaskCount()+")");
-                        if (executor.getTaskCount() == executor.getCompletedTaskCount()) {
-                            snackbar.dismiss();
-                            fab.show();
-                            timer.cancel();
-                            timer.purge();
-                        }
-                    }
-                });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                snackbar.setText("Syncing tracks ("+executor.getCompletedTaskCount() + "/"+executor.getTaskCount()+")");
+                if (executor.getTaskCount() == executor.getCompletedTaskCount()) {
+                    snackbar.dismiss();
+                    fab.show();
+                    timer.cancel();
+                    timer.purge();
+                }
+                }
+            });
             }
         }, 250, 1000);
     }

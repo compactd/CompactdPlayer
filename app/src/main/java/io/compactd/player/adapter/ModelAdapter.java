@@ -194,7 +194,6 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                                 cb.onSizeReady(devicewidth, devicewidth);
                             } else {
                                 int dp = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, 64, displaymetrics );
-                                Log.d(TAG, "onSizeReady: " + dp);
                                 cb.onSizeReady(dp, dp);
                             }
                         }

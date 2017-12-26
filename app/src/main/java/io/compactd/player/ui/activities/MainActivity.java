@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -83,6 +85,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String remote = PreferenceUtil.getInstance(this).getRemoteUrl();
 
+        if (remote != null && !remote.isEmpty() && checkOfflineStatus()) {
+            try {
+                CompactdClient.getInstance().setUrl(new URL(remote));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+            finish();
+            return;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions();
@@ -90,6 +102,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startLoginFlow(remote);
         }
 
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private boolean checkOfflineStatus() {
+        if (isNetworkAvailable()) {
+            return false;
+        }
+
+        CompactdClient.getInstance().setOffline(true);
+        return true;
     }
 
     private void startLoginFlow(String remote) {
@@ -201,12 +228,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startActivity(new Intent(MainActivity.this, LibraryActivity.class));
-                                }
-                            });
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                            startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+                            finish();
+                            }
+                        });
                         }
                     }, DURATION);
                 }

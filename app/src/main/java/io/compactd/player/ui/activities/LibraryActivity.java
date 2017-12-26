@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.github.zafarkhaja.semver.Version;
@@ -90,13 +91,18 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
 
         final TextView appText = mNavigationView.getHeaderView(0).findViewById(R.id.app_text);
 
+        final CompactdClient client = CompactdClient.getInstance();
         new Thread(
             new Runnable() {
 
                 @Override
                 public void run() {
+                    if (client.isOffline()) {
+                        appText.setText(R.string.offline_text);
+                        return;
+                    }
                     try {
-                        final Version version = CompactdClient.getInstance().getServerVersion();
+                        final Version version = client.getServerVersion();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -116,7 +122,11 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
             }).start();
 
         TextView serverText = mNavigationView.getHeaderView(0).findViewById(R.id.server_text);
-        serverText.setText(CompactdClient.getInstance().getUrl().getHost());
+        if (client.isOffline()) {
+            serverText.setVisibility(View.INVISIBLE);
+        } else {
+            serverText.setText(client.getUrl().getHost());
+        }
     }
 
 

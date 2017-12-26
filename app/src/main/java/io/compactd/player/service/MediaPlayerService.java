@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -629,7 +630,17 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void setDataSource(CompactdTrack track) {
-        String url = CompactdClient.getInstance().getUrl() + track.getStreamingURL("original");
+
+        CompactdClient client = CompactdClient.getInstance();
+        if (client.isOffline()) {
+            try {
+                player.setDataSource(track.getStorageLocation());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        String url = client.getUrl() + track.getStreamingURL("original");
 
         setDataSource(url);
     }

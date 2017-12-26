@@ -25,6 +25,7 @@ public class CompactdClient {
     private static final CompactdClient sInstance = new CompactdClient();
 
     private String token;
+    private boolean offline = false;
     private Map<String, String> prefixCache = new HashMap<>();
 
     public static CompactdClient getInstance() {
@@ -161,5 +162,13 @@ public class CompactdClient {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + getToken());
         return headers;
+    }
+
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public void setOffline(boolean offline) {
+        this.offline = offline;
     }
 }
