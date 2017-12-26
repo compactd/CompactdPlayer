@@ -113,7 +113,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     View backgroundView;
 
     private Unbinder unbinder;
-    private MusicPlayerRemote remote;
     private boolean monitorPlayback = false;
     private Runnable progressRunnable;
     private Handler handler;
@@ -149,6 +148,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         playPauseFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
                 if (remote.isPlaying()) {
                     remote.pauseMedia();
                 } else {
@@ -157,22 +157,27 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             }
         });
         nextButton.setColorFilter(Color.BLACK);
+
+
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                remote.skipToNext();
+                MusicPlayerRemote.getInstance(getContext()).skipToNext();
             }
         });
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                remote.rewind();
+                MusicPlayerRemote.getInstance(getContext()).rewind();
             }
         });
 
         progressSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
+
                 if (remote.isPlaying() && fromUser)  {
                     remote.seekTo(progress * 1000);
                 }
@@ -220,13 +225,18 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        remote = MusicPlayerRemote.getInstance(context);
+
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
         remote.addMediaListener(this);
         remote.addPlaybackListener(this);
     }
 
     @Override
     public void onDetach() {
+        MusicPlayerRemote remote = MusicPlayerRemote.getInstance(getContext());
+        remote.removePlaybackListener(this);
+        remote.removeMediaListener(this);
+        
         super.onDetach();
     }
 
@@ -264,11 +274,13 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
 
     @Override
     public void onMediaSkipped(CompactdTrack skipped, @Nullable CompactdTrack next) {
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
         tracksAdapter.swapDataSet(remote.getPlaylist(1));
     }
 
     @Override
     public void onMediaRewinded(CompactdTrack rewinded, CompactdTrack previous) {
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
         tracksAdapter.swapDataSet(remote.getPlaylist(1));
 
     }

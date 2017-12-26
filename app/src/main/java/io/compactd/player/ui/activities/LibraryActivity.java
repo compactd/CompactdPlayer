@@ -80,6 +80,10 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         mNavigationView = findViewById(R.id.navigation);
         mNavigationView.setNavigationItemSelectedListener(this);
 
+        if (CompactdClient.getInstance().isOffline()) {
+            mNavigationView.getMenu().findItem(R.id.item_sync).setEnabled(false);
+        }
+
         mToggleButton = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
 
         mDrawerLayout.addDrawerListener(mToggleButton);
@@ -146,6 +150,9 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.item_sync) {
+            if (CompactdClient.getInstance().isOffline()) {
+                 return false;
+            }
             startActivity(
                     new Intent(this, SyncActivity.class)
             );

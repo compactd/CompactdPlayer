@@ -98,6 +98,8 @@ public class AlbumActivity extends SlidingMusicActivity {
             e.printStackTrace();
         }
 
+        setShowStatusBarDummy(false);
+
     }
 
     private void setAlbum(CompactdAlbum model) {
@@ -116,5 +118,10 @@ public class AlbumActivity extends SlidingMusicActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

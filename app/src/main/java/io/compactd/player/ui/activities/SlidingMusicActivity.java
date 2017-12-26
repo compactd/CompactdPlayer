@@ -36,7 +36,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     public static final String TAG = SlidingMusicActivity.class.getSimpleName();
 
     private Unbinder unbinder;
-    private MusicPlayerRemote remote;
     private Runnable progressRunnable;
     private Handler handler;
     private boolean monitorPlayback;
@@ -80,13 +79,11 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
         panelLayout.addPanelSlideListener(this);
 
-        remote = MusicPlayerRemote.getInstance(this);
-        remote.addMediaListener(this);
-        remote.addPlaybackListener(this);
 
         playbackImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(SlidingMusicActivity.this);
                 if (remote.isPlaying()) {
                     remote.pauseMedia();
                 } else {
@@ -103,6 +100,10 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
     }
 
+    public void setShowStatusBarDummy (boolean b) {
+        statusBarDummy.setVisibility(b ? View.VISIBLE : View.GONE);
+    }
+
     public void onPlaybackProgress (int progress, int duration) {
 
     }
@@ -117,14 +118,31 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
+
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(this);
+
         remote.removeMediaListener(this);
         remote.removePlaybackListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(this);
+
+        remote.addMediaListener(this);
+        remote.addPlaybackListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(this);
 
         remote.stopMedia();
-
-        remote = null;
     }
 
     void hidePlayer ()  {

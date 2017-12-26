@@ -114,6 +114,7 @@ public class ArtistActivity extends SlidingMusicActivity {
             e.printStackTrace();
         }
 
+        setShowStatusBarDummy(false);
     }
 
     private void setArtist(CompactdArtist model) {
@@ -132,5 +133,10 @@ public class ArtistActivity extends SlidingMusicActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

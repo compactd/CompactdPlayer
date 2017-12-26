@@ -130,6 +130,7 @@ public class MusicPlayerRemote {
         if (sInstance == null) {
             sInstance = new MusicPlayerRemote(context);
         }
+
         return sInstance;
     }
 
