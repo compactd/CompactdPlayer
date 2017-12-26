@@ -472,6 +472,19 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         fireMediaRewinded(skipped, playlist.get(position));
     }
 
+    public void skipTracks (int n) {
+        jumpTo(position + n);
+    }
+
+    private void jumpTo(int pos) {
+        CompactdTrack current = getCurrentTrack();
+        if (pos < playlist.size()) {
+            position = pos;
+            updatePlaylist();
+            fireMediaSkipped(current, getCurrentTrack());
+        }
+    }
+
     private void removeNotification() {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_ID);

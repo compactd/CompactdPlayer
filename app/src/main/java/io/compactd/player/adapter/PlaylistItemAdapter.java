@@ -28,8 +28,10 @@ import io.compactd.player.ui.views.PlaylistItemViewHolder;
 public class PlaylistItemAdapter extends RecyclerView.Adapter<PlaylistItemViewHolder>  {
     private final List<CompactdTrack> playlist = new ArrayList<>();
     private LayoutInflater inflater;
+    private Context context;
 
     public PlaylistItemAdapter(Context context) {
+        context = context;
         inflater = LayoutInflater.from(context);
     }
 
@@ -40,7 +42,7 @@ public class PlaylistItemAdapter extends RecyclerView.Adapter<PlaylistItemViewHo
     }
 
     @Override
-    public void onBindViewHolder(PlaylistItemViewHolder holder, int position) {
+    public void onBindViewHolder(PlaylistItemViewHolder holder, final int position) {
         final CompactdTrack track = playlist.get(position);
         try {
             track.fetch();
@@ -53,7 +55,7 @@ public class PlaylistItemAdapter extends RecyclerView.Adapter<PlaylistItemViewHo
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                MusicPlayerRemote.getInstance(context).skipTracks(position + 1);
             }
         });
     }

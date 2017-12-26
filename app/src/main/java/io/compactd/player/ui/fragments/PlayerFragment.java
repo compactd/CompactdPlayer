@@ -237,6 +237,10 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
+        currentText.setText(track.getArtist().getName());
+        currentTitle.setText(track.getName());
+        currentImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
         GlideApp.with(this)
             .asBitmap()
             .load(new MediaCover(track.getAlbum()))
@@ -251,11 +255,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                     super.setResource(resource);
                 }
             });
-
-        currentText.setText(track.getArtist().getName());
-        currentTitle.setText(track.getName());
-        currentImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        currentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_volume_up_black_24dp));
     }
 
     @Override

@@ -183,6 +183,15 @@ public class MusicPlayerRemote {
 
     }
 
+    public void skipTracks (final int pos) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.skipTracks(pos);
+            }
+        });
+    }
+
     public void addMediaListener (final MediaPlayerService.MediaListener l) {
         waitUntilReady(new ConnectionCallback() {
             @Override
