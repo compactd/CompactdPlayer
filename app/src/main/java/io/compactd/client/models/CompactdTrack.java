@@ -15,14 +15,20 @@ import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import io.compactd.client.CompactdClient;
+import io.compactd.client.CompactdPreset;
+import io.compactd.client.CompactdRequest;
 
 /**
  * Created by Vincent on 30/10/2017.
@@ -37,8 +43,10 @@ public class CompactdTrack extends CompactdModel {
     private CompactdAlbum mAlbum;
     private double mDuration;
     private int mNumber;
+    private String mStorageLocation;
 
     private static SparseArray<CompactdTrack> cache = new SparseArray<>();
+    private CompactdPreset mStoragePreset;
 
     public CompactdTrack(Manager manager, String id) {
         super(manager, id);
@@ -52,11 +60,31 @@ public class CompactdTrack extends CompactdModel {
         mAlbum = new CompactdAlbum(other.getAlbum());
         mDuration = other.getDuration();
         mNumber = other.getNumber();
+        mStorageLocation = other.getStorageLocation();
+        mStoragePreset = other.getStoragePreset();
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("name", getName());
+        map.put("hidden", isHidden());
+        map.put("artist", getArtist().getId());
+        map.put("album", getAlbum().getId());
+        map.put("duration", getDuration());
+        map.put("number", getNumber());
+
+        if (getStorageLocation() != null && !getStorageLocation().isEmpty()) {
+            map.put("storage_loc", getStorageLocation());
+            map.put("storage_preset", getStoragePreset());
+        }
+
+        return map;
+    }
     @Override
     public void fromMap(Map<String, Object> map) {
         super.fromMap(map);
+
         mName     = (String) map.get("name");
         mHidden   = map.containsKey("hidden") && (boolean) map.get("hidden");
 
@@ -78,6 +106,14 @@ public class CompactdTrack extends CompactdModel {
 
         mDuration = getMillisDurationFromSeconds(map.get("duration"));
         mNumber   = (Integer) map.get("number");
+
+        if (map.containsKey("storage_preset")) {
+            mStoragePreset = CompactdPreset.from(map.get("storage_preset").toString());
+        }
+
+        if (map.containsKey("storage_loc")) {
+            mStorageLocation = (String) map.get("storage_loc");
+        }
     }
 
     private int getMillisDurationFromSeconds (Object ms) {
@@ -314,4 +350,94 @@ public class CompactdTrack extends CompactdModel {
         return CompactdClient.getInstance().getPrefix() + DATABASE_NAME;
     }
 
+    public String getStorageLocation() {
+        return mStorageLocation;
+    }
+
+    private void setStorageLocation(String mStorageLocation) {
+        this.mStorageLocation = mStorageLocation;
+    }
+
+    public void update () throws CouchbaseLiteException {
+        Database database = mManager.getDatabase(databaseName());
+        Document doc = database.getDocument(getId());
+        Map<String, Object> properties = new HashMap<>();
+        properties.putAll(doc.getProperties());
+        properties.putAll(toMap());
+
+        try {
+            doc.putProperties(properties);
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public CompactdPreset getStoragePreset() {
+        return mStoragePreset;
+    }
+
+    private void setStoragePreset(CompactdPreset preset) {
+        mStoragePreset = preset;
+    }
+
+    public void setStorageOptions (SyncOptions opts) {
+        String dir = opts.getDestination();
+        try {
+            fetch();
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+            return;
+        }
+        String artist = getArtist().getName();
+        String album  = getAlbum().getName();
+        String track  = getName();
+        String number = String.format(Locale.getDefault(),"%02d", getNumber());
+        String base   = dir + (dir.endsWith("/") ? "" : "/");
+
+        String dest = base + artist + " - " + album + "/" + number + " - " + track + ".mp3";
+
+        setStorageLocation(dest);
+        setStoragePreset(opts.getPreset());
+    }
+
+    public boolean isAvailableOffline () {
+        return getStorageLocation() != null && new File(getStorageLocation()).exists();
+    }
+
+    public void sync () {
+        Log.d(TAG, "sync: '" + getId() + "' to '" + getStorageLocation() + "'");
+        if (isAvailableOffline()) {
+            return;
+        }
+
+        String uri = getId().replaceAll("^library\\/", "");
+
+        CompactdClient client = CompactdClient.getInstance();
+
+        URL baseURL = client.getUrl();
+        String endpoint = "/api/boombox/" + uri + "/" + getStoragePreset().getPreset();
+
+        String token = client.getToken();
+
+        CompactdRequest req = new CompactdRequest(baseURL, endpoint, token);
+
+        String dest = getStorageLocation();
+
+        try {
+            req.saveToDisk(dest + ".tmp");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        File temp = new File(dest + ".tmp");
+
+        if (temp.renameTo(new File(dest))) {
+            try {
+                update();
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

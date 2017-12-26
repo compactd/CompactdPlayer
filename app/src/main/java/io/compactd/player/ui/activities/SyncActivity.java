@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -21,11 +20,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.codekidlabs.storagechooser.StorageChooser;
 import com.couchbase.lite.CouchbaseLiteException;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import butterknife.BindView;
@@ -36,8 +34,7 @@ import io.compactd.client.CompactdPreset;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
-import io.compactd.player.helpers.OfflineItem;
-import io.compactd.player.helpers.SyncOptions;
+import io.compactd.client.models.SyncOptions;
 import io.compactd.player.utils.PreferenceUtil;
 
 public class SyncActivity extends SlidingMusicActivity implements View.OnClickListener {
@@ -149,37 +146,69 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         fab.hide();
-        final Snackbar bar = Snackbar.make(mainLayout, R.string.sync_in_progress, Snackbar.LENGTH_INDEFINITE);
+        final Snackbar snackbar = Snackbar.make(mainLayout, R.string.sync_in_progress, Snackbar.LENGTH_INDEFINITE);
 
-        ViewGroup contentLay = (ViewGroup) bar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-        final ProgressBar item = new ProgressBar(this);
-        item.setIndeterminate(true);
-        contentLay.addView(item,0);
-
-        bar.show();
+        snackbar.show();
 
         final Handler handler = new Handler();
-        List<CompactdTrack> all = null;
+        List<CompactdTrack> items = null;
         try {
-            all = CompactdTrack.findAll(CompactdManager.getInstance(this), CompactdModel.FindMode.OnlyIds);
+            items = CompactdTrack.findAll(CompactdManager.getInstance(this), CompactdModel.FindMode.OnlyIds);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
-        final ThreadPoolExecutor tpe = OfflineItem.sync(mOptions, all);
+
+        final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+
+        for (final CompactdTrack track : items) {
+            if (!track.isAvailableOffline()) {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        track.setStorageOptions(mOptions);
+                        track.sync();
+                    }
+                });
+            }
+        }
 
         final Timer timer = new Timer();
+
+        snackbar.setAction("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timer.cancel();
+                timer.purge();
+                executor.shutdownNow();
+                snackbar.dismiss();
+                fab.show();
+            }
+        });
+
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                item.setIndeterminate(false);
-                item.setMax((int) tpe.getTaskCount());
-                item.setProgress((int) tpe.getCompletedTaskCount());
-                if (tpe.getTaskCount() == tpe.getCompletedTaskCount()) {
-                    bar.dismiss();
-                    timer.cancel();
-                    timer.purge();
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Log.d(TAG, "run: " + executor.getTaskCount() + "/" + executor.getCompletedTaskCount());
+                        snackbar.setText("Syncing tracks ("+executor.getCompletedTaskCount() + "/"+executor.getTaskCount()+")");
+                        if (executor.getTaskCount() == executor.getCompletedTaskCount()) {
+                            snackbar.dismiss();
+                            fab.show();
+                            timer.cancel();
+                            timer.purge();
+                        }
+                    }
+                });
             }
         }, 250, 1000);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ");
+        finish();
     }
 }

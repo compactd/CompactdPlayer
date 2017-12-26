@@ -1,4 +1,4 @@
-package io.compactd.player.helpers;
+package io.compactd.client.models;
 
 import io.compactd.client.CompactdPreset;
 

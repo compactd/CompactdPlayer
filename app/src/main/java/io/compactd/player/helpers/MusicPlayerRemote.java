@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,7 @@ public class MusicPlayerRemote {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                Log.d(TAG, "onServiceConnected: " + componentName + "; " + iBinder);
                 MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) iBinder;
                 mediaPlayer = binder.getService();
                 serviceBound = true;
@@ -91,6 +93,7 @@ public class MusicPlayerRemote {
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
+                Log.d(TAG, "onServiceDisconnected: " + componentName);
                 mediaPlayer = null;
                 serviceBound = false;
             }
