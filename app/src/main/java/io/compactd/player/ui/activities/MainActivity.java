@@ -1,18 +1,25 @@
 package io.compactd.player.ui.activities;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +33,8 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.compactd.client.CompactdClient;
 import io.compactd.client.CompactdException;
@@ -33,9 +42,10 @@ import io.compactd.client.CompactdSync;
 import io.compactd.player.R;
 import io.compactd.player.utils.PreferenceUtil;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final int REQUEST_PERMISSIONS = 0x1a4;
     private EditText mServerURLText;
     private Button mConnectButton;
     private ProgressBar mProgressBar;
@@ -44,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mPreviousButton;
     private ConstraintLayout mLayout;
     private ConstraintLayout mFrameLayout;
+    private String[] mPermissions = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +83,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String remote = PreferenceUtil.getInstance(this).getRemoteUrl();
 
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions();
+        } else {
+            startLoginFlow(remote);
+        }
+
+    }
+
+    private void startLoginFlow(String remote) {
         if (!remote.isEmpty()) {
             CheckServerTask task = new CheckServerTask(this);
             task.execute(remote);
@@ -256,7 +280,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
             }
             CompactdClient.getInstance().setUrl(url);
-            return CompactdClient.getInstance().isServerValid();
+            if (CompactdClient.getInstance().isServerValid()) {
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -303,5 +330,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mServerURLText.setVisibility(View.VISIBLE);
         mConnectButton.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.GONE);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private String[] getRequiredPermissions () {
+        List<String> res = new ArrayList<>();
+        for (String permission : mPermissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                res.add(permission);
+            }
+        }
+        Log.d(TAG, "getRequiredPermissions: " + res);
+        return res.toArray(new String[res.size()]);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestPermissions () {
+        String[] perms = getRequiredPermissions();
+        if (perms.length == 0) {
+            String remote = PreferenceUtil.getInstance(this).getRemoteUrl();
+
+            startLoginFlow(remote);
+            return;
+        }
+        ActivityCompat.requestPermissions(this, perms, REQUEST_PERMISSIONS);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        // TODO: Handle better denied results
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions();
+                }
+                return;
+            }
+        }
+        String remote = PreferenceUtil.getInstance(this).getRemoteUrl();
+
+        startLoginFlow(remote);
     }
 }

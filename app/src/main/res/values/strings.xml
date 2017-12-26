@@ -113,4 +113,16 @@
     <string name="title_activity_album">AlbumActivity</string>
     <string name="player_notification_channel_name">Player</string>
     <string name="up_next">Up next</string>
+    <string name="preset_original">Original</string>
+    <string name="preset_original_desc">No transcoding performed</string>
+    <string name="preset_high">High</string>
+    <string name="preset_high_desc">High quality (VBR V0)</string>
+    <string name="preset_normal">Normal</string>
+    <string name="preset_normal_desc">Normal quality (mp3 V2)</string>
+    <string name="preset_low_desc">Low quality (mp3 v4)</string>
+    <string name="preset_low">Low</string>
+    <string name="app_text_content">Compactd %1$s</string>
+    <string name="title_activity_sync">SyncActivity</string>
+    <string name="preset_dialog_title">Select a preset</string>
+    <string name="sync_in_progress">Syncing content</string>
 </resources>

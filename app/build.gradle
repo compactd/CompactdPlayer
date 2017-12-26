@@ -72,4 +72,8 @@ dependencies {
         // Excludes the support library because it's already included by Glide.
         transitive = false
     }
+
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+    implementation 'com.github.codekidX:storage-chooser:2.0.3'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
 }

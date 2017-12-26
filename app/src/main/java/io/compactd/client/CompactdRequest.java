@@ -5,6 +5,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -57,6 +59,39 @@ public class CompactdRequest {
      * @throws CompactdException
      */
     public JSONObject send ()  throws IOException, JSONException, CompactdException {
+        Response response = executeRequest();
+
+        String raw = response.body().string();
+
+        Log.d(TAG, "Response: " + raw);
+
+        JSONObject res = new JSONObject(raw);
+
+        if (res.has("error")) {
+            String error = res.getString("error");
+
+            if (error != null && !error.isEmpty()) {
+                if (error.equals("Invalid credentials")) {
+                    throw new CompactdException(CompactdErrorCode.INVALID_CREDENTIALS);
+                }
+                throw new CompactdException(CompactdErrorCode.SERVER_ERROR);
+            }
+        }
+        return res;
+
+    }
+
+    public void saveToDisk (String dest) throws IOException {
+        Log.d(TAG, "saveToDisk: " + dest);
+        Response res = executeRequest();
+        File file = new File(dest);
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(res.body().bytes());
+    }
+
+    private Response executeRequest() throws IOException {
         ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
                 .tlsVersions(TlsVersion.TLS_1_2)
                 .cipherSuites(
@@ -88,27 +123,9 @@ public class CompactdRequest {
 
         Request request = requestBuilder.build();
 
-        Response response = client.newCall(request).execute();
-
-        String raw = response.body().string();
-
-        Log.d(TAG, "Response: " + raw);
-
-        JSONObject res = new JSONObject(raw);
-
-        if (res.has("error")) {
-            String error = res.getString("error");
-
-            if (error != null && !error.isEmpty()) {
-                if (error.equals("Invalid credentials")) {
-                    throw new CompactdException(CompactdErrorCode.INVALID_CREDENTIALS);
-                }
-                throw new CompactdException(CompactdErrorCode.SERVER_ERROR);
-            }
-        }
-        return res;
-
+        return client.newCall(request).execute();
     }
+
     public JSONObject post (JSONObject data) throws IOException, JSONException, CompactdException {
         ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
                 .tlsVersions(TlsVersion.TLS_1_2)

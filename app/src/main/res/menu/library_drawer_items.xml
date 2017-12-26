@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_library"
+        android:checked="false"
+        android:icon="@drawable/ic_library_music_black_24dp"
+        android:title="Library" />
+    <item
+        android:id="@+id/item_sync"
+        android:icon="@drawable/ic_sync_black_24dp"
+        android:title="Sync" />
+</menu>

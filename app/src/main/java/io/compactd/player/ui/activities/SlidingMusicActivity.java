@@ -22,6 +22,7 @@ import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
  * Created by vinz243 on 18/12/2017.
@@ -43,7 +44,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private ImageView caretView;
     private SlidingUpPanelLayout panelLayout;
     private FrameLayout mSlidingContent;
-    private ProgressBar miniProgress;
+    private MaterialProgressBar miniProgress;
     private TextView trackTitle;
     private FrameLayout layoutContainer;
     private FrameLayout fragment;

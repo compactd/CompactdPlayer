@@ -14,6 +14,9 @@ public class PreferenceUtil {
     private static String REMOTE_URL = "remote_url";
     private static String SESSION_TOKEN = "session_token";
     private static String USERNAME = "username";
+    private static String SYNC_DESTINATION = "sync_dest";
+    private static String SYNC_PRESET = "normal";
+
     private final SharedPreferences preferences;
 
     private PreferenceUtil(Context context) {
@@ -54,6 +57,26 @@ public class PreferenceUtil {
     public void setRemoteUrl (String url) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(REMOTE_URL, url);
+        editor.apply();
+    }
+
+    public String getSyncDestination () {
+        return preferences.getString(SYNC_DESTINATION, "/storage/emulated/0/Music");
+    }
+
+    public void setSyncDestination (String dest) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(SYNC_DESTINATION, dest);
+        editor.apply();
+    }
+
+    public String getSyncPreset () {
+        return preferences.getString(SYNC_PRESET, "normal");
+    }
+
+    public void setSyncPreset (String preset) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(SYNC_PRESET, preset);
         editor.apply();
     }
 }
