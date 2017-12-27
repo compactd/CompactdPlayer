@@ -547,6 +547,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
+    public void destroy () {
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+    }
+
     private PendingIntent playbackAction(int action) {
         Intent intent = new Intent(this, MediaPlayerService.class);
 

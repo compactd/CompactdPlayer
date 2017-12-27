@@ -36,6 +36,7 @@ public class MusicPlayerRemote {
     }
 
     public void destroyMedia (Context context) {
+        mediaPlayer.destroy();
         context.unbindService(mServiceConnection);
     }
 

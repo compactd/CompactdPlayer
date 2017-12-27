@@ -169,6 +169,14 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         return onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MusicPlayerRemote remote = MusicPlayerRemote.getInstance(this);
+        remote.removePlaybackListener(this);
+        remote.destroyMedia(this);
+
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
