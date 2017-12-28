@@ -142,9 +142,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(this);
-
-        remote.stopMedia();
     }
 
     void hidePlayer ()  {
