@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -88,6 +89,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private AudioManager audioManager;
     private Handler handler = new Handler();
     private boolean playerReady;
+    private boolean shuffling;
 
     public boolean isPlaying() {
         return player.isPlaying();
@@ -97,6 +99,20 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         ArrayList<CompactdTrack> tracks = new ArrayList<>();
         tracks.addAll(playlist.subList(position, playlist.size()));
         return tracks;
+    }
+
+    public boolean isShuffling() {
+        return shuffling;
+    }
+
+    public void setShuffling(boolean shuffling) {
+        this.shuffling = shuffling;
+        if (shuffling) {
+            CompactdTrack current = playlist.remove(position);
+            Collections.shuffle(playlist);
+            playlist.add(position, current);
+            fireQueueChanged(playlist);
+        }
     }
 
     public abstract class AbsMediaListener implements MediaListener {
@@ -279,8 +295,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void fireQueueChanged (List<CompactdTrack> tracks) {
+        List<CompactdTrack> readonly = Collections.unmodifiableList(tracks);
         for (MediaListener listener : mMediaListeners) {
-            listener.onQueueChanged(tracks);
+            listener.onQueueChanged(readonly);
         }
     }
 
@@ -571,14 +588,19 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         return null;
     }
 
-    public void openQueue (final List<CompactdTrack> tracks, final int startPosition, final boolean startPlaying) {
+    public void openQueue(final List<CompactdTrack> tracks, final int startPosition, final boolean startPlaying) {
         CompactdTrack track = getCurrentTrack();
 
         playlist.clear();
         playlist.addAll(tracks);
+
+        if (isShuffling()) {
+            Collections.shuffle(playlist);
+        }
+
         position = startPosition;
 
-        fireQueueChanged(tracks);
+        fireQueueChanged(playlist);
         updatePlaylist();
 
         fireMediaSkipped(track, getCurrentTrack());

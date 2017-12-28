@@ -233,4 +233,16 @@ public class MusicPlayerRemote {
         });
     }
 
+    public void setShuffling (final boolean flag) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.setShuffling(flag);
+            }
+        });
+    }
+
+    public boolean isShuffling () {
+        return mediaPlayer != null && mediaPlayer.isShuffling();
+    }
 }

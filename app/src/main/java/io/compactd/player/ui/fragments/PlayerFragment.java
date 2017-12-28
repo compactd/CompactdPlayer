@@ -265,6 +265,15 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                     super.setResource(resource);
                 }
             });
+
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
+                remote.setShuffling(!remote.isShuffling());
+                shuffleButton.setSelected(remote.isShuffling());
+            }
+        });
     }
 
     @Override
