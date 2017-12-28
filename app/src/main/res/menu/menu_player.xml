@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_item_stop"
+        android:title="@string/stop_playback" />
+    <item
+        android:id="@+id/menu_item_clear_queue"
+        android:title="@string/clear_queue" />
+</menu>

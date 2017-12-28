@@ -145,11 +145,11 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     }
 
     void hidePlayer ()  {
-        panelLayout.setPanelHeight(0);
+        panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
     }
 
     void showPlayer () {
-        panelLayout.setPanelHeight(getResources().getDimensionPixelSize(R.dimen.player_panel_height));
+        panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 
     @Override

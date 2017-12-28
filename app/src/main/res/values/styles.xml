@@ -32,6 +32,7 @@
 
     <style name="AppTheme.WhiteIcons">
         <item name="android:textColorSecondary">#FFFFFF</item>
+
     </style>
 
     <style name="MusicProgressSlider">

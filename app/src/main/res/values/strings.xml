@@ -126,4 +126,6 @@
     <string name="preset_dialog_title">Select a preset</string>
     <string name="sync_in_progress">Syncing content</string>
     <string name="offline_text">Offline</string>
+    <string name="clear_queue">Clear queue</string>
+    <string name="stop_playback">Stop playback</string>
 </resources>

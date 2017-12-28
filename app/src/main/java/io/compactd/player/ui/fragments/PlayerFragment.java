@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -53,7 +54,7 @@ import io.compactd.player.ui.views.WidthFitSquareLayout;
 
 import static io.compactd.player.ui.activities.SlidingMusicActivity.DELAY_MILLIS;
 
-public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener {
+public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener, Toolbar.OnMenuItemClickListener {
 
     @BindView(R.id.player_toolbar)
     Toolbar toolbar;
@@ -140,8 +141,10 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             statusBarHeight = getResources().getDimensionPixelSize(resourceId);
             ((ViewGroup.MarginLayoutParams) toolbar.getLayoutParams()).topMargin = statusBarHeight;
         }
-        toolbar.setSubtitleTextColor(Color.WHITE);
-        toolbar.getNavigationIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+
+        toolbar.inflateMenu(R.menu.menu_player);
+
+        toolbar.setOnMenuItemClickListener(this);
 
         prevButton.setColorFilter(Color.BLACK);
         playPauseFab.setColorFilter(Color.BLACK);
@@ -347,5 +350,19 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         super.onDestroyView();
         MusicPlayerRemote.getInstance(getContext()).removeMediaListener(this);
         MusicPlayerRemote.getInstance(getContext()).removePlaybackListener(this);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        MusicPlayerRemote remote = MusicPlayerRemote.getInstance(getContext());
+        switch (item.getItemId()) {
+            case R.id.menu_item_clear_queue:
+                remote.clearQueue();
+                return true;
+            case R.id.menu_item_stop:
+                remote.destroyMedia(getContext());
+                return true;
+        }
+        return false;
     }
 }

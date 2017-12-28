@@ -115,6 +115,14 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
     }
 
+    public void clearQueue() {
+        CompactdTrack current = getCurrentTrack();
+        position = 0;
+        playlist.clear();
+        playlist.add(current);
+        fireQueueChanged(playlist);
+    }
+
     public abstract class AbsMediaListener implements MediaListener {
 
         @Override
@@ -566,6 +574,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public void destroy () {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+        firePlayerDestroyed();
+        player.stop();
     }
 
     private PendingIntent playbackAction(int action) {

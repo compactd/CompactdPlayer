@@ -245,4 +245,13 @@ public class MusicPlayerRemote {
     public boolean isShuffling () {
         return mediaPlayer != null && mediaPlayer.isShuffling();
     }
+
+    public void clearQueue () {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.clearQueue();
+            }
+        });
+    }
 }
