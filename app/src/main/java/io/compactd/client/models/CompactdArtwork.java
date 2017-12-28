@@ -65,13 +65,20 @@ public class CompactdArtwork extends CompactdModel {
             Database db = this.mManager.getDatabase(databaseName());
             Document doc = db.getDocument(getId());
             Revision rev = doc.getCurrentRevision();
-            Attachment att = rev.getAttachment(size.getSize());
-            if (att != null) {
-                return att.getContent();
+            if (rev != null) {
+                Attachment att = rev.getAttachment(size.getSize());
+                if (att != null) {
+                    return att.getContent();
+                }
             }
         } catch (CouchbaseLiteException ignored) {
         }
-        return null;
+        try {
+            return ((AndroidContext) mManager.getContext()).getWrappedContext().getResources().getAssets().open("album_fallback.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
