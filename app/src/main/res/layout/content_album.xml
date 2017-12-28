@@ -1,25 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="io.compactd.player.ui.activities.AlbumActivity"
-    tools:showIn="@layout/activity_album">
+    tools:context="io.compactd.player.ui.activities.ArtistActivity"
+    tools:showIn="@layout/activity_artist">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="@dimen/title_view_height"
+        android:height="@dimen/title_view_height"
+        android:background="@color/cardview_light_background"
+        android:elevation="@dimen/toolbar_elevation"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center_vertical"
+        android:paddingLeft="72dp"
+        android:paddingRight="72dp"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        tools:ignore="UnusedAttribute" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/album_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:fillViewport="true">
+
 
         <FrameLayout
-            android:id="@+id/frame"
+            android:id="@+id/tracks_frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         </FrameLayout>
 
-    </LinearLayout>
 
-</android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.NestedScrollView>
+
+
+</LinearLayout>

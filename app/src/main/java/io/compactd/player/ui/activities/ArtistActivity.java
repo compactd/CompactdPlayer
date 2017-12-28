@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -49,9 +50,6 @@ public class ArtistActivity extends SlidingMusicActivity {
     @BindView(R.id.artist_cover_view)
     ImageView artistCoverView;
 
-    @BindView(R.id.albums_frame)
-    LinearLayout albumsFrame;
-
     @BindView(R.id.title)
     TextView titleView;
 
@@ -84,6 +82,9 @@ public class ArtistActivity extends SlidingMusicActivity {
             }
         });
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
 
@@ -101,7 +102,7 @@ public class ArtistActivity extends SlidingMusicActivity {
             AlbumsFragment albumsFragment = AlbumsFragment.newInstance(ModelFragment.HORIZONTAL_LAYOUT, model.getId());
             TracksFragment tracksFragment = TracksFragment.newInstance(ModelFragment.VERTICAL_LAYOUT, model.getId());
             fragmentTransaction.add(R.id.albums_frame, albumsFragment);
-            fragmentTransaction.add(R.id.albums_frame, tracksFragment);
+            fragmentTransaction.add(R.id.tracks_frame, tracksFragment);
             fragmentTransaction.commit();
 
         } catch (NoSuchMethodException e) {
@@ -115,6 +116,12 @@ public class ArtistActivity extends SlidingMusicActivity {
         }
 
         setShowStatusBarDummy(false);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        this.onBackPressed();
+        return true;
     }
 
     private void setArtist(CompactdArtist model) {

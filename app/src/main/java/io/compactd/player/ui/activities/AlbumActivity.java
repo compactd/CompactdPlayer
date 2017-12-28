@@ -13,9 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.couchbase.lite.CouchbaseLiteException;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -42,6 +45,9 @@ public class AlbumActivity extends SlidingMusicActivity {
     @BindView(R.id.app_bar)
     AppBarLayout appBarLayout;
 
+    @BindView(R.id.title)
+    TextView titleView;
+
     private Unbinder unbinder;
 
     @Override
@@ -50,7 +56,6 @@ public class AlbumActivity extends SlidingMusicActivity {
         setContentView(R.layout.activity_album);
 
         unbinder = ButterKnife.bind(this);
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -64,6 +69,8 @@ public class AlbumActivity extends SlidingMusicActivity {
             }
         });
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
@@ -85,7 +92,7 @@ public class AlbumActivity extends SlidingMusicActivity {
             FragmentTransaction fragmentTransaction = manager.beginTransaction();
 
             TracksFragment tracksFragment = TracksFragment.newInstance(ModelFragment.VERTICAL_LAYOUT, model.getId());
-            fragmentTransaction.add(R.id.frame, tracksFragment);
+            fragmentTransaction.add(R.id.tracks_frame, tracksFragment);
             fragmentTransaction.commit();
 
         } catch (NoSuchMethodException e) {
@@ -102,6 +109,12 @@ public class AlbumActivity extends SlidingMusicActivity {
 
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        this.onBackPressed();
+        return true;
+    }
+
     private void setAlbum(CompactdAlbum model) {
         try {
             model.fetch();
@@ -111,7 +124,8 @@ public class AlbumActivity extends SlidingMusicActivity {
         }
 
         Glide.with(this).load(new MediaCover(model)).into(albumCoverView);
-        setTitle(model.getName());
+        setTitle("");
+        titleView.setText(model.getName());
     }
 
     @Override
