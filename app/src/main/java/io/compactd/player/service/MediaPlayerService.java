@@ -624,6 +624,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public CompactdTrack getCurrentTrack() {
+
         if (playlist.isEmpty()) return null;
         return playlist.get(position);
     }
@@ -740,10 +741,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d(TAG, "onCompletion: " + mediaPlayer);
         stopMedia();
-        stopSelf();
+        if (position >= playlist.size()) {
+            stopSelf();
 
-        firePlayerDestroyed();
-        playerReady = false;
+            firePlayerDestroyed();
+            playerReady = false;
+        } else {
+            position = position + 1;
+            updatePlaylist();
+        }
     }
 
     @Override
