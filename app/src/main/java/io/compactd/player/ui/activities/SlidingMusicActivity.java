@@ -79,7 +79,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
         panelLayout.addPanelSlideListener(this);
 
-
         playbackImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,9 +94,6 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-
-        hidePlayer();
-
     }
 
     public void setShowStatusBarDummy (boolean b) {
@@ -135,6 +131,12 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
 
         remote.addMediaListener(this);
         remote.addPlaybackListener(this);
+
+        if (remote.isPlaying()) {
+            onMediaLoaded(remote.getCurrent());
+        } else {
+            hidePlayer();
+        }
     }
 
     @Override
