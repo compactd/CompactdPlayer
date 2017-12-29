@@ -27,11 +27,13 @@
 
             <ImageView
                 android:id="@+id/artist_cover_view"
+                android:transitionName="@string/transition_artist_cover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                app:srcCompat="@color/colorPrimary" />
+                app:srcCompat="@color/colorPrimary"
+                tools:ignore="ContentDescription,UnusedAttribute" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"

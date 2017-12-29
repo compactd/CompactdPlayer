@@ -1,12 +1,17 @@
 package io.compactd.player.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.util.Pair;
 
 import io.compactd.client.models.CompactdAlbum;
+import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
 import io.compactd.player.ui.activities.AlbumActivity;
+import io.compactd.player.ui.views.ItemViewHolder;
+import io.compactd.player.utils.NavigationUtils;
 
 /**
  * Created by vinz243 on 12/12/2017.
@@ -38,11 +43,9 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     }
 
     @Override
-    protected void onItemSelected(CompactdAlbum current, int position) {
-        super.onItemSelected(current, position);
+    protected void onItemSelected(CompactdAlbum current, int position, ItemViewHolder holder) {
+        super.onItemSelected(current, position, holder);
 
-        Intent intent = new Intent(context, AlbumActivity.class);
-        intent.putExtra(AlbumActivity.BUNDLE_ALBUM_KEY, new CompactdParcel<>(current));
-        context.startActivity(intent);
+        NavigationUtils.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_artist_cover)));
     }
 }

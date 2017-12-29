@@ -1,8 +1,10 @@
 package io.compactd.player.ui.activities;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.bumptech.glide.request.target.ImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -85,6 +90,8 @@ public class ArtistActivity extends SlidingMusicActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        supportPostponeEnterTransition();
+
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
 
@@ -133,7 +140,13 @@ public class ArtistActivity extends SlidingMusicActivity {
         }
         toolbar.setTitle(model.getName());
         titleView.setText(model.getName());
-        Glide.with(this).load(new MediaCover(model)).into(artistCoverView);
+        Glide.with(this).load(new MediaCover(model)).into(new DrawableImageViewTarget(artistCoverView) {
+            @Override
+            public void onResourceReady(Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                super.onResourceReady(resource, transition);
+                supportStartPostponedEnterTransition();
+            }
+        });
     }
 
     @Override

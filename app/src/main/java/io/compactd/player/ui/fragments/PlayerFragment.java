@@ -175,6 +175,15 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             }
         });
 
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
+                remote.setShuffling(!remote.isShuffling());
+                shuffleButton.setSelected(remote.isShuffling());
+            }
+        });
+
         progressSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -269,14 +278,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                 }
             });
 
-        shuffleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
-                remote.setShuffling(!remote.isShuffling());
-                shuffleButton.setSelected(remote.isShuffling());
-            }
-        });
     }
 
     @Override

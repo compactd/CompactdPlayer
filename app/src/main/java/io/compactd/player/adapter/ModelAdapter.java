@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -152,13 +151,13 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemSelected(current, position);
+                onItemSelected(current, position, holder);
             }
         });
 
     }
 
-    protected void onItemSelected(M current, int position) {
+    protected void onItemSelected(M current, int position, ItemViewHolder holder) {
 
     }
 

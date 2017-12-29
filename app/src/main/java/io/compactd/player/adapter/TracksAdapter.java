@@ -40,8 +40,8 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     }
 
     @Override
-    protected void onItemSelected(CompactdTrack current, int position) {
-        super.onItemSelected(current, position);
+    protected void onItemSelected(CompactdTrack current, int position, ItemViewHolder holder) {
+        super.onItemSelected(current, position, holder);
         if (isTrackAvailable(position)) {
             MusicPlayerRemote.getInstance(context)
                     .openQueue(items.subList(position, items.size() - 1), 0, true);
