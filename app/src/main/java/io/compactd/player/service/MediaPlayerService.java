@@ -88,7 +88,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private int resumePosition;
     private AudioManager audioManager;
     private Handler handler = new Handler();
-    private boolean playerReady;
+    private boolean playerReady = false;
     private boolean shuffling;
 
     public boolean isPlaying() {
@@ -654,8 +654,11 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
 
         firePrepareMedia(track);
+
         player.setOnCompletionListener(null);
+        playerReady = false;
         player.reset();
+
         setDataSource(track);
         player.prepareAsync();
 
@@ -840,7 +843,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
 
     public int getProgress () {
-        return player.getCurrentPosition();
+        if (playerReady) {
+            return player.getCurrentPosition();
+        }
+        return 0;
     }
 
     public int getDuration () {
