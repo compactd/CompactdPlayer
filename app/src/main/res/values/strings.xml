@@ -40,4 +40,5 @@
     <string name="clear_queue">Clear queue</string>
     <string name="stop_playback">Stop playback</string>
     <string name="transition_artist_cover" translatable="false">artist_cover_transition</string>
+    <string name="transition_album_cover" translatable="false">album_cover_transition</string>
 </resources>

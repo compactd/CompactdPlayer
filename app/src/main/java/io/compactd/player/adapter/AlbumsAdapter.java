@@ -46,6 +46,6 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     protected void onItemSelected(CompactdAlbum current, int position, ItemViewHolder holder) {
         super.onItemSelected(current, position, holder);
 
-        NavigationUtils.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_artist_cover)));
+        NavigationUtils.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_album_cover)));
     }
 }

@@ -1,8 +1,10 @@
 package io.compactd.player.ui.activities;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import org.w3c.dom.Text;
@@ -76,6 +80,7 @@ public class AlbumActivity extends SlidingMusicActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
+        supportPostponeEnterTransition();
 
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
@@ -123,7 +128,13 @@ public class AlbumActivity extends SlidingMusicActivity {
             return;
         }
 
-        Glide.with(this).load(new MediaCover(model)).into(albumCoverView);
+        Glide.with(this).load(new MediaCover(model)).into(new DrawableImageViewTarget(albumCoverView) {
+            @Override
+            public void onResourceReady(Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                super.onResourceReady(resource, transition);
+                supportStartPostponedEnterTransition();
+            }
+        });
         setTitle("");
         titleView.setText(model.getName());
     }
