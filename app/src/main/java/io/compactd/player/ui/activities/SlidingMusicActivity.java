@@ -51,6 +51,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private int statusBarColor;
     private FrameLayout statusBarDummy;
     private LinearLayout dragView;
+    private ProgressBar mediaLoadProgress;
 
 
     @Override
@@ -72,6 +73,8 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         fragment        = findViewById(R.id.player_container);
         statusBarDummy  = findViewById(R.id.status_bar_dummy);
         dragView        = findViewById(R.id.dragView);
+
+        mediaLoadProgress = findViewById(R.id.media_load_progress);
 
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
@@ -188,6 +191,8 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     public void onMediaLoaded(CompactdTrack track) {
 
         trackTitle.setText(track.getName());
+        mediaLoadProgress.setVisibility(View.GONE);
+        playbackImage.setVisibility(View.VISIBLE);
         showPlayer();
     }
 
@@ -250,5 +255,13 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         } else {
           finishAffinity();
         }
+    }
+
+    @Override
+    public void onPrepareMedia(CompactdTrack track) {
+        playbackImage.setVisibility(View.GONE);
+        mediaLoadProgress.setVisibility(View.VISIBLE);
+        trackTitle.setText(track.getName());
+        showPlayer();
     }
 }

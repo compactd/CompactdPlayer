@@ -192,6 +192,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
         void onMediaReady (CompactdTrack track);
 
+        void onPrepareMedia (CompactdTrack track);
+
         void onPlayerDestroyed ();
     }
 
@@ -306,6 +308,12 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         List<CompactdTrack> readonly = Collections.unmodifiableList(tracks);
         for (MediaListener listener : mMediaListeners) {
             listener.onQueueChanged(readonly);
+        }
+    }
+
+    private void firePrepareMedia (CompactdTrack track) {
+        for (MediaListener listener : mMediaListeners) {
+            listener.onPrepareMedia(track);
         }
     }
 
@@ -639,6 +647,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
+
+        firePrepareMedia(track);
 
         player.reset();
         setDataSource(track);

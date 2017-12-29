@@ -309,6 +309,11 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     }
 
     @Override
+    public void onPrepareMedia(CompactdTrack track) {
+
+    }
+
+    @Override
     public void onPlayerDestroyed() {
 
     }
