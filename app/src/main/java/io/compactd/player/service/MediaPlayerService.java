@@ -287,6 +287,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void fireMediaLoaded (CompactdTrack track) {
+        Log.d(TAG, "fireMediaLoaded: " + track);
+        new Throwable().printStackTrace();
         for (MediaListener listener : mMediaListeners) {
             listener.onMediaLoaded(track);
         }
@@ -312,6 +314,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void firePrepareMedia (CompactdTrack track) {
+        Log.d(TAG, "firePrepareMedia: " + track);
+
+        new Throwable().printStackTrace();
         for (MediaListener listener : mMediaListeners) {
             listener.onPrepareMedia(track);
         }
@@ -649,7 +654,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
 
         firePrepareMedia(track);
-
+        player.setOnCompletionListener(null);
         player.reset();
         setDataSource(track);
         player.prepareAsync();
@@ -788,6 +793,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public void onPrepared(MediaPlayer mediaPlayer) {
         Log.d(TAG, "onPrepared: " + mediaPlayer);
         playerReady = true;
+        player.setOnCompletionListener(this);
         fireMediaLoaded(getCurrentTrack());
         playMedia();
     }

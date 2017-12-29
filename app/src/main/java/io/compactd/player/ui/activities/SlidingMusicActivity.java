@@ -150,15 +150,10 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     }
 
     void hidePlayer ()  {
-        Log.d(TAG, "hidePlayer: ");
-        new Throwable().printStackTrace();
-        SlidingUpPanelLayout.PanelState state = panelLayout.getPanelState();
         panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
     }
 
     void showPlayer () {
-        Log.d(TAG, "showPlayer: ");
-        new Throwable().printStackTrace();
         SlidingUpPanelLayout.PanelState state = panelLayout.getPanelState();
         if (state == SlidingUpPanelLayout.PanelState.HIDDEN) {
             panelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
