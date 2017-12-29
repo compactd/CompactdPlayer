@@ -41,4 +41,8 @@
     <string name="stop_playback">Stop playback</string>
     <string name="transition_artist_cover" translatable="false">artist_cover_transition</string>
     <string name="transition_album_cover" translatable="false">album_cover_transition</string>
+    <string name="go_to_artist">Go to artist</string>
+    <string name="sync_offline">Sync Offline</string>
+    <string name="play_next">Play next</string>
+    <string name="shuffle">Shuffle</string>
 </resources>

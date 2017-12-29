@@ -12,6 +12,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -25,6 +27,8 @@ import com.couchbase.lite.CouchbaseLiteException;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,12 +36,16 @@ import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdArtist;
+import io.compactd.client.models.CompactdModel;
+import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
+import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
+import io.compactd.player.utils.NavigationUtils;
 
 public class AlbumActivity extends SlidingMusicActivity {
 
@@ -53,6 +61,7 @@ public class AlbumActivity extends SlidingMusicActivity {
     TextView titleView;
 
     private Unbinder unbinder;
+    private CompactdAlbum album;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,15 +72,6 @@ public class AlbumActivity extends SlidingMusicActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -86,7 +86,6 @@ public class AlbumActivity extends SlidingMusicActivity {
         assert bundle != null;
 
         CompactdParcel album = bundle.getParcelable(BUNDLE_ALBUM_KEY);
-
 
         try {
             assert album != null;
@@ -121,12 +120,15 @@ public class AlbumActivity extends SlidingMusicActivity {
     }
 
     private void setAlbum(CompactdAlbum model) {
+
         try {
             model.fetch();
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             return;
         }
+
+        album = model;
 
         Glide.with(this).load(new MediaCover(model)).into(new DrawableImageViewTarget(albumCoverView) {
             @Override
@@ -143,6 +145,41 @@ public class AlbumActivity extends SlidingMusicActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_album, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_goto_artist:
+                NavigationUtils.goToArtist(this, album.getArtist());
+                return true;
+            case R.id.menu_play_shuffle:
+                try {
+                    List<CompactdTrack> queue = album.getTracks(CompactdModel.FindMode.OnlyIds);
+                    Collections.shuffle(queue);
+                    MusicPlayerRemote.getInstance(this).openQueue(queue, 0, true);
+                    MusicPlayerRemote.getInstance(this).setShuffling(true);
+                    return true;
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
+            case R.id.menu_play_next:
+                try {
+                    List<CompactdTrack> queue = album.getTracks(CompactdModel.FindMode.OnlyIds);
+                    MusicPlayerRemote.getInstance(this).insert(queue);
+                    return true;
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
+
+        }
+        return false;
     }
 
     @Override

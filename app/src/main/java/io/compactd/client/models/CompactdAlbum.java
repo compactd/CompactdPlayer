@@ -107,7 +107,7 @@ public class CompactdAlbum extends CompactdModel {
         return mArtist;
     }
 
-    List<CompactdTrack> getTracks (FindMode mode) throws CouchbaseLiteException {
+    public List<CompactdTrack> getTracks (FindMode mode) throws CouchbaseLiteException {
         return CompactdTrack.findAll(mManager, getId(), mode);
     }
 
@@ -231,4 +231,5 @@ public class CompactdAlbum extends CompactdModel {
         String uriArtist = getURIProps().get("artist");
         return "/api/aquarelle/" + uriArtist + "/" + uriName + "?s=" + size;
     }
+
 }

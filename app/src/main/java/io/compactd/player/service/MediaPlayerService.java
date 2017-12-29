@@ -123,6 +123,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         fireQueueChanged(playlist);
     }
 
+    public void insert (List<CompactdTrack> tracks) {
+        if (playlist.isEmpty()) {
+            openQueue(tracks, 0, true);
+            return;
+        }
+        playlist.addAll(position + 1, tracks);
+        fireQueueChanged(playlist);
+    }
+
     public abstract class AbsMediaListener implements MediaListener {
 
         @Override

@@ -242,6 +242,15 @@ public class MusicPlayerRemote {
         });
     }
 
+    public void insert (final List<CompactdTrack> queue) {
+        waitUntilReady(new ConnectionCallback() {
+            @Override
+            public void onReady() {
+                mediaPlayer.insert(queue);
+            }
+        });
+    }
+
     public boolean isShuffling () {
         return mediaPlayer != null && mediaPlayer.isShuffling();
     }
