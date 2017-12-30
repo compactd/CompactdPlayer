@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:checkable="true"
         android:checked="true"
-        android:enabled="false"
+        android:enabled="true"
         android:title="@string/sync_offline" />
     <item
         android:id="@+id/menu_play_next"

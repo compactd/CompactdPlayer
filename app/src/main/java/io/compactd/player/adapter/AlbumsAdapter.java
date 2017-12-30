@@ -79,7 +79,11 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
                 } catch (CouchbaseLiteException e) {
                     e.printStackTrace();
                 }
-
+            case R.id.menu_sync_offline:
+                item.setChecked(!item.isChecked());
+                album.setExcludedFromSync(!item.isChecked());
+                album.update();
+                return true;
         }
         return false;
     }

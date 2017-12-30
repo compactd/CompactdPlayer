@@ -177,7 +177,11 @@ public class AlbumActivity extends SlidingMusicActivity {
                 } catch (CouchbaseLiteException e) {
                     e.printStackTrace();
                 }
-
+            case R.id.menu_sync_offline:
+                item.setChecked(!item.isChecked());
+                album.setExcludedFromSync(!item.isChecked());
+                album.update();
+                return true;
         }
         return false;
     }

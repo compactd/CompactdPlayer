@@ -14,11 +14,14 @@ import com.couchbase.lite.Manager;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -365,6 +368,25 @@ public class CompactdTrack extends CompactdModel {
         return getStorageLocation() != null && new File(getStorageLocation()).exists();
     }
 
+    public static long computeRequiredStorage (Manager manager, SyncOptions opts) throws CouchbaseLiteException {
+        Collection<CompactdTrack> filtered = getSyncList(manager, opts);
+        long size = 0;
+
+        for (CompactdTrack track : filtered) {
+            size += track.getDuration() * opts.getPreset().getBitrate() * 1000;
+        }
+        return size;
+    }
+
+    public static Collection<CompactdTrack> getSyncList(Manager manager, SyncOptions opts) throws CouchbaseLiteException {
+        List<CompactdTrack> tracks = findAll(manager, FindMode.Prefetch);
+        final Map<String, Boolean> albumExclusionMap = new HashMap<>();
+
+        return Collections2.filter(tracks,
+                new SyncExclusionPredicate(albumExclusionMap, opts));
+    }
+
+
     public void sync () {
         Log.d(TAG, "sync: '" + getId() + "' to '" + getStorageLocation() + "'");
         if (isAvailableOffline()) {
@@ -399,6 +421,36 @@ public class CompactdTrack extends CompactdModel {
             } catch (CouchbaseLiteException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private static class SyncExclusionPredicate implements Predicate<CompactdTrack> {
+        private final Map<String, Boolean> albumExclusionMap;
+        private final SyncOptions opts;
+
+        public SyncExclusionPredicate(Map<String, Boolean> albumExclusionMap, SyncOptions opts) {
+            this.albumExclusionMap = albumExclusionMap;
+            this.opts = opts;
+        }
+
+        @Override
+        public boolean apply(@Nullable CompactdTrack input) {
+            if (input == null) return false;
+
+            CompactdTrack track = new CompactdTrack(input);
+            track.setStorageOptions(opts);
+
+            String albumId = track.getAlbum().getId();
+
+            if (albumExclusionMap.containsKey(albumId)) {
+                return !albumExclusionMap.get(albumId) && !track.isHidden() && !track.isAvailableOffline();
+            }
+
+            boolean excludedFromSync = track.getAlbum().isExcludedFromSync();
+
+            albumExclusionMap.put(albumId, excludedFromSync);
+
+            return !excludedFromSync && !track.isHidden() && !track.isAvailableOffline();
         }
     }
 }

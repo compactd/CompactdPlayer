@@ -2,6 +2,7 @@ package io.compactd.player.ui.activities;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StatFs;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.codekidlabs.storagechooser.StorageChooser;
 import com.couchbase.lite.CouchbaseLiteException;
 
+import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,6 +38,7 @@ import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.client.models.SyncOptions;
+import io.compactd.player.utils.FormatUtil;
 import io.compactd.player.utils.PreferenceUtil;
 
 public class SyncActivity extends SlidingMusicActivity implements View.OnClickListener {
@@ -57,6 +61,9 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
     @BindView(R.id.preset_text)
     TextView presetText;
 
+    @BindView(R.id.size_view)
+    TextView sizeText;
+
     @BindView(R.id.main_layout)
     CoordinatorLayout mainLayout;
 
@@ -74,6 +81,8 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Sync");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         noMediaSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -100,6 +109,7 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
                                 CompactdPreset preset = CompactdPreset.from(getResources(), text.toString());
                                 presetText.setText(preset.getDesc());
                                 mOptions.setPreset(preset);
+                                updateSizeStatus();
                             }
                         })
                         .show();
@@ -131,10 +141,54 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
                         PreferenceUtil.getInstance(SyncActivity.this).setSyncDestination(path);
                     }
                 });
+                updateSizeStatus();
             }
         });
 
         fab.setOnClickListener(this);
+
+        updateSizeStatus();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    private void updateSizeStatus() {
+        fab.hide();
+        sizeText.setText(R.string.size_view_loader);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final long size = CompactdTrack.computeRequiredStorage(CompactdManager.getInstance(SyncActivity.this), mOptions);
+                    StatFs stat = new StatFs(mOptions.getDestination());
+                    final long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getBlockCount();
+                    final String req = FormatUtil.humanReadableByteCount(size, true);
+                    final String left = FormatUtil.humanReadableByteCount(bytesAvailable, true);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sizeText.setText(getString(R.string.size_view_text, req, left));
+
+                            if (size < bytesAvailable) {
+                                fab.show();
+                                sizeText.setError(null);
+                            } else {
+                                sizeText.setError(getString(R.string.nospace_left));
+                            }
+
+                        }
+                    });
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+
+                }
+
+            }
+        }).start();
     }
 
     @Override
@@ -146,16 +200,20 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         fab.hide();
+        noMediaSwitch.setEnabled(false);
+        presetLayout.setEnabled(false);
+        destinationLayout.setEnabled(false);
         final Snackbar snackbar = Snackbar.make(mainLayout, R.string.sync_in_progress, Snackbar.LENGTH_INDEFINITE);
 
         snackbar.show();
 
         final Handler handler = new Handler();
-        List<CompactdTrack> items = null;
+        Collection<CompactdTrack> items = null;
         try {
-            items = CompactdTrack.findAll(CompactdManager.getInstance(this), CompactdModel.FindMode.OnlyIds);
+            items = CompactdTrack.getSyncList(CompactdManager.getInstance(this), mOptions);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
+            return;
         }
 
         final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
@@ -182,6 +240,9 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
             executor.shutdownNow();
             snackbar.dismiss();
             fab.show();
+            noMediaSwitch.setEnabled(true);
+            presetLayout.setEnabled(true);
+            destinationLayout.setEnabled(true);
             }
         });
 
@@ -197,6 +258,9 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
                     fab.show();
                     timer.cancel();
                     timer.purge();
+                    noMediaSwitch.setEnabled(true);
+                    presetLayout.setEnabled(true);
+                    destinationLayout.setEnabled(true);
                 }
                 }
             });

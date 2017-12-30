@@ -68,6 +68,7 @@
                     android:layout_weight="1"
                     android:text="Hide from content" />
 
+
                 <LinearLayout
                     android:id="@+id/preset_layout"
                     android:layout_width="match_parent"
@@ -86,7 +87,6 @@
                         android:id="@+id/preset_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:text="@string/preset_normal_desc" />
                 </LinearLayout>
 
@@ -117,6 +117,14 @@
                     </LinearLayout>
 
                 </FrameLayout>
+
+                <TextView
+                    android:id="@+id/size_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_weight="1"
+                    android:text="@string/size_view_text" />
 
             </LinearLayout>
         </android.support.constraint.ConstraintLayout>

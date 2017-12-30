@@ -7,36 +7,36 @@ import io.compactd.client.CompactdPreset;
  */
 
 public class SyncOptions {
-    private boolean noMedia;
-    private CompactdPreset preset;
-    private String destination;
+    private boolean mNoMedia;
+    private CompactdPreset mPreset;
+    private String mDestination;
 
     public SyncOptions() {
-        preset = CompactdPreset.NORMAL;
-        noMedia = false;
+        mPreset = CompactdPreset.NORMAL;
+        mNoMedia = false;
     }
 
     public CompactdPreset getPreset() {
-        return preset;
+        return mPreset;
     }
 
     public void setPreset(CompactdPreset preset) {
-        this.preset = preset;
+        this.mPreset = preset;
     }
 
     public boolean isNoMedia() {
-        return noMedia;
+        return mNoMedia;
     }
 
     public void setNoMedia(boolean noMedia) {
-        this.noMedia = noMedia;
+        this.mNoMedia = noMedia;
     }
 
     public String getDestination() {
-        return destination;
+        return mDestination;
     }
 
     public void setDestination(String destination) {
-        this.destination = destination;
+        this.mDestination = destination;
     }
 }

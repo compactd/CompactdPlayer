@@ -28,7 +28,9 @@ import io.compactd.client.CompactdClient;
 public class CompactdAlbum extends CompactdModel {
     public static final String DATABASE_NAME = "albums";
     private static final String TAG = "CompactdAlbum";
+    public static final String KEY_EXCLUDED_FROM_SYNC = "exc_sync";
     private String mName;
+    private boolean mExcludedFromSync = false;
     private CompactdArtist mArtist;
 
     private static SparseArray<CompactdAlbum> cache = new SparseArray<>();
@@ -40,7 +42,7 @@ public class CompactdAlbum extends CompactdModel {
 
     public CompactdAlbum(CompactdAlbum other) {
         super(other);
-        mArtist = new CompactdArtist(other.getArtist());
+        mArtist = other.getArtist() != null ? new CompactdArtist(other.getArtist()) : null;
         mName   = other.getName();
         mYear   = other.getYear();
     }
@@ -51,6 +53,9 @@ public class CompactdAlbum extends CompactdModel {
 
         Object artist = map.get("artist");
         mYear = (Integer) (map.containsKey("year") ? map.get("year") : 0);
+        if (map.containsKey(KEY_EXCLUDED_FROM_SYNC)) {
+            mExcludedFromSync = (boolean) map.get(KEY_EXCLUDED_FROM_SYNC);
+        }
 
         if (artist instanceof CompactdArtist) {
             mArtist = (CompactdArtist) artist;
@@ -232,4 +237,34 @@ public class CompactdAlbum extends CompactdModel {
         return "/api/aquarelle/" + uriArtist + "/" + uriName + "?s=" + size;
     }
 
+    public boolean isExcludedFromSync() {
+        return mExcludedFromSync;
+    }
+
+    public void setExcludedFromSync(boolean mExcludedFromSync) {
+        this.mExcludedFromSync = mExcludedFromSync;
+    }
+
+    public void update () {
+
+        Database database = null;
+        try {
+            database = mManager.getDatabase(databaseName());
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+            return;
+        }
+        Document doc = database.getDocument(getId());
+        Map<String, Object> properties = new HashMap<>();
+        properties.putAll(doc.getProperties());
+
+        if (isExcludedFromSync()) {
+            properties.put(KEY_EXCLUDED_FROM_SYNC, true);
+        }
+        try {
+            doc.putProperties(properties);
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -49,4 +49,7 @@
     <string name="hidden">Hidden</string>
     <string name="show_hidden_tracks">Show hidden tracks</string>
     <string name="hide_track">Hide track</string>
+    <string name="size_view_text">%1s required (%2s left on device)</string>
+    <string name="size_view_loader">Please wait...</string>
+    <string name="nospace_left">Not enough space left on device</string>
 </resources>
