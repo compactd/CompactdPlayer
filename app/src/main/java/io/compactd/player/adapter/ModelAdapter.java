@@ -43,7 +43,7 @@ import io.compactd.player.utils.ImageUtils;
 public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView.Adapter<ItemViewHolder> implements ListPreloader.PreloadModelProvider<M> {
     private static final String TAG = ModelAdapter.class.getSimpleName();
 
-    private final LayoutType layoutType;
+    protected final LayoutType layoutType;
     private final LayoutInflater inflater;
     private final GlideRequest<Bitmap> fullRequest;
 

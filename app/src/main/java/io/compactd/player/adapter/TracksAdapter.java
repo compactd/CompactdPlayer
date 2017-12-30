@@ -3,8 +3,12 @@ package io.compactd.player.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
+
+import com.couchbase.lite.CouchbaseLiteException;
 
 import java.util.Collections;
 
@@ -23,6 +27,8 @@ import io.compactd.player.utils.PreferenceUtil;
  */
 
 public class TracksAdapter extends ModelAdapter<CompactdTrack> {
+    private boolean mShowHidden = false;
+
     public TracksAdapter(Context context, LayoutType layoutType) {
         super(context, layoutType);
     }
@@ -46,6 +52,7 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     protected PopupMenu inflateMenu(View view, CompactdTrack model) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.inflate(R.menu.menu_track);
+        popupMenu.getMenu().findItem(R.id.action_set_hidden).setChecked(model.isHidden());
         return popupMenu;
     }
 
@@ -61,6 +68,17 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
             case R.id.action_play_after:
                 MusicPlayerRemote.getInstance(context).insert(Collections.singletonList(model));
                 return true;
+            case R.id.action_set_hidden:
+                item.setChecked(!item.isChecked());
+                model.setHidden(item.isChecked());
+                try {
+                    model.update();
+                    notifyDataSetChanged();
+                    return true;
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                    return false;
+                }
         }
         return false;
     }
@@ -80,13 +98,37 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
         if (!isTrackAvailable(position)) {
             holder.layout.setAlpha(0.5f);
         }
+        if (items.get(position).isHidden()) {
+            if (getShowHidden()) {
+                holder.layout.setVisibility(View.VISIBLE);
+                holder.layout.setAlpha(0.5f);
+                if (layoutType == LayoutType.ListItem) {
+                    holder.layout.getLayoutParams().height = getLayoutHeight();
+                }
+            } else {
+                holder.layout.setVisibility(View.GONE);
+                if (layoutType == LayoutType.ListItem) {
+                    holder.layout.getLayoutParams().height = 0;
+                }
+            }
+        } else {
+            holder.layout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private int getLayoutHeight() {
+        if (layoutType == LayoutType.ListItem) {
+            return context.getResources().getDimensionPixelSize(R.dimen.list_item_height);
+        } else {
+            return 0;
+        }
     }
 
     private boolean isTrackAvailable(int position) {
         if (!CompactdClient.getInstance().isOffline()) {
             return true;
         }
-        CompactdTrack track = items.get(position);
+        CompactdTrack track = new CompactdTrack(items.get(position));
 
         SyncOptions opts = new SyncOptions();
         opts.setDestination(PreferenceUtil.getInstance(context).getSyncDestination());
@@ -94,5 +136,14 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
         track.setStorageOptions(opts);
 
         return track.isAvailableOffline();
+    }
+
+    public boolean getShowHidden() {
+        return mShowHidden;
+    }
+
+    public void setShowHidden(boolean showHidden) {
+        mShowHidden = showHidden;
+        notifyDataSetChanged();
     }
 }

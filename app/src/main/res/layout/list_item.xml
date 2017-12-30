@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frame"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
+    android:layout_height="@dimen/list_item_height"
     android:layout_margin="2dp">
 
     <LinearLayout

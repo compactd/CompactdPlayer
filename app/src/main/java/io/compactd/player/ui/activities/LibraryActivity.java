@@ -15,9 +15,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.zafarkhaja.semver.Version;
@@ -148,20 +150,25 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.item_sync) {
-            if (CompactdClient.getInstance().isOffline()) {
-                 return false;
-            }
-            startActivity(
-                    new Intent(this, SyncActivity.class)
-            );
-            return true;
-        } else {
+        switch (item.getItemId()) {
+            case R.id.item_sync:
+                if (CompactdClient.getInstance().isOffline()) {
+                    return false;
+                }
+                startActivity(
+                        new Intent(this, SyncActivity.class)
+                );
+                return true;
+            case R.id.action_showhidden:
+                item.setChecked(!item.isChecked());
+                TracksFragment fragment = (TracksFragment)
+                        mSectionsPagerAdapter.getRegisteredFragment(2);
+                fragment.setShowHidden(item.isChecked());
+
+                return true;
 
         }
-
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override
@@ -174,7 +181,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         super.onDestroy();
         MusicPlayerRemote remote = MusicPlayerRemote.getInstance(this);
         remote.removePlaybackListener(this);
-        remote.destroyMedia(this);
+        remote.destroyMedia();
 
     }
 
@@ -183,6 +190,8 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        private SparseArray<Fragment> mRegisteredFragments = new SparseArray<>();
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -206,6 +215,24 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         public int getCount() {
             // Show 3 total pages.
             return 3;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            mRegisteredFragments.put(position, fragment);
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            mRegisteredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public Fragment getRegisteredFragment (int pos) {
+            return mRegisteredFragments.get(pos);
         }
     }
 }

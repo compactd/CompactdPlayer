@@ -11,9 +11,9 @@
         android:id="@+id/action_goto_album"
         android:title="@string/go_to_album" />
     <item
-        android:id="@+id/action_sync"
+        android:id="@+id/action_set_hidden"
         android:checkable="true"
-        android:checked="true"
-        android:enabled="false"
-        android:title="@string/sync_offline" />
+        android:checked="false"
+        android:enabled="true"
+        android:title="@string/hide_track" />
 </menu>

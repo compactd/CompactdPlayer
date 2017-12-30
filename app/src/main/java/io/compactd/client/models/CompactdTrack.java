@@ -107,11 +107,11 @@ public class CompactdTrack extends CompactdModel {
         mDuration = getMillisDurationFromSeconds(map.get("duration"));
         mNumber   = (Integer) map.get("number");
 
-        if (map.containsKey("storage_preset")) {
+        if (map.containsKey("storage_preset") && map.get("storage_preset") != null) {
             mStoragePreset = CompactdPreset.from(map.get("storage_preset").toString());
         }
 
-        if (map.containsKey("storage_loc")) {
+        if (map.containsKey("storage_loc") && map.get("storage_loc") != null) {
             mStorageLocation = (String) map.get("storage_loc");
         }
     }
@@ -282,45 +282,6 @@ public class CompactdTrack extends CompactdModel {
     public static CompactdTrack findById (Manager manager, String id) {
         return findById(manager, id, true);
     }
-
-    public static Cursor makeCursor (Manager manager) {
-        String[] columns = new String[]{
-                BaseColumns._ID,// 0
-                MediaStore.Audio.AudioColumns.TITLE,// 1
-                MediaStore.Audio.AudioColumns.TRACK,// 2
-                MediaStore.Audio.AudioColumns.YEAR,// 3
-                MediaStore.Audio.AudioColumns.DURATION,// 4
-                MediaStore.Audio.AudioColumns.DATA,// 5
-                MediaStore.Audio.AudioColumns.DATE_MODIFIED,// 6
-                MediaStore.Audio.AudioColumns.ALBUM_ID,// 7
-                MediaStore.Audio.AudioColumns.ALBUM,// 8
-                MediaStore.Audio.AudioColumns.ARTIST_ID,// 9
-                MediaStore.Audio.AudioColumns.ARTIST,// 10
-        };
-        MatrixCursor cursor = new MatrixCursor(columns);
-
-        try {
-            for (CompactdTrack track : findAll(manager, FindMode.Fetch)) {
-                cursor.addRow(new Object[] {
-                    track.getId().hashCode(),
-                    track.getName(),
-                    track.getNumber(),
-                    0, (long) track.getDuration(),
-                    "", 0,
-                    track.getAlbum().getId().hashCode(),
-                    track.getAlbum().getName(),
-                    track.getArtist().getId().hashCode(),
-                    track.getArtist().getName()
-                });
-            }
-        } catch (CouchbaseLiteException e) {
-            e.printStackTrace();
-        } finally {
-            cursor.close();
-        }
-        return cursor;
-    }
-
 
     public String getStreamingURL(String preset) {
         try {

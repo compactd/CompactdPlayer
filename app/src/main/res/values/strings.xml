@@ -46,4 +46,7 @@
     <string name="play_next">Play next</string>
     <string name="shuffle">Shuffle</string>
     <string name="go_to_album">Go to album</string>
+    <string name="hidden">Hidden</string>
+    <string name="show_hidden_tracks">Show hidden tracks</string>
+    <string name="hide_track">Hide track</string>
 </resources>

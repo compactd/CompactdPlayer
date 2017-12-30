@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="io.compactd.player.ui.activities.LibraryActivity">
     <item
+        android:id="@+id/action_showhidden"
+        android:checkable="true"
+        android:title="@string/show_hidden_tracks" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"

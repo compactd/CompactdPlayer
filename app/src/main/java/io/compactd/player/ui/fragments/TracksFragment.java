@@ -16,6 +16,7 @@ import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.adapter.ArtistsAdapter;
+import io.compactd.player.adapter.ModelAdapter;
 import io.compactd.player.adapter.TracksAdapter;
 
 /**
@@ -46,5 +47,10 @@ public class TracksFragment extends ModelFragment<CompactdTrack> {
 
 
         return root;
+    }
+
+    public void setShowHidden (boolean flag) {
+        TracksAdapter adapter = (TracksAdapter) this.adapter;
+        adapter.setShowHidden(flag);
     }
 }
