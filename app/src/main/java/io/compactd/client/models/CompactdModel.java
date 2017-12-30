@@ -13,6 +13,24 @@ import io.compactd.client.CompactdClient;
 
 public abstract class CompactdModel implements Cloneable{
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CompactdModel that = (CompactdModel) o;
+
+        if (!mId.equals(that.mId)) return false;
+        return mState == that.mState;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId.hashCode();
+        result = 31 * result + mState.hashCode();
+        return result;
+    }
+
     public enum ModelState {
         Barebone, Prefetched, Fetched, Deleted
     }

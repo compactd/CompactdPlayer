@@ -20,11 +20,6 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     }
 
     @Override
-    protected String getCacheId(CompactdTrack item) {
-        return item.getAlbum().getId();
-    }
-
-    @Override
     protected MediaCover getMediaCover(CompactdTrack item) {
         return new MediaCover(item.getAlbum());
     }

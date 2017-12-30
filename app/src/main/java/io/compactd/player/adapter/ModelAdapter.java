@@ -24,7 +24,6 @@ import com.couchbase.lite.CouchbaseLiteException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import io.compactd.client.models.CompactdModel;
@@ -40,13 +39,17 @@ import io.compactd.player.utils.ImageUtils;
  */
 
 public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView.Adapter<ItemViewHolder> implements ListPreloader.PreloadModelProvider<M> {
-    private static final int MAX_CACHE_SIZE = 25;
     private static final String TAG = ModelAdapter.class.getSimpleName();
+
     private final LayoutType layoutType;
     private final LayoutInflater inflater;
     private final GlideRequest<Bitmap> fullRequest;
-    private boolean tintBackground = true;
-    private LinkedHashMap<String, Bitmap> cache = new LinkedHashMap<>();
+
+    protected final Context context;
+    protected final List<M> items;
+
+    private boolean mTintBackground = true;
+    private boolean mShowMenu = true;
 
     @NonNull
     @Override
@@ -61,46 +64,43 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         return fullRequest.clone().thumbnail(0.2f).load(cover);
     }
 
-    public boolean isTintBackground() {
-        return tintBackground;
+    public boolean tintBackground() {
+        return mTintBackground;
     }
 
     public void setTintBackground(boolean tintBackground) {
-        this.tintBackground = tintBackground;
+        this.mTintBackground = tintBackground;
     }
 
     public enum LayoutType {
         GridItem, ListItem
     }
 
-    protected final Context context;
-    protected final List<M> items;
 
     ModelAdapter(Context context, LayoutType layoutType) {
         super();
         this.context = context;
         this.items   = new ArrayList<>();
 
-        this.inflater    = LayoutInflater.from(context);
+        this.inflater = LayoutInflater.from(context);
         this.layoutType  = layoutType;
         this.fullRequest = GlideApp.with(context).asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .priority(Priority.LOW);
     }
 
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        cache.clear();
     }
 
     public void swapItems (List<M> items) {
         this.items.clear();
         this.items.addAll(items);
 
-        cache.clear();
         notifyDataSetChanged();
     }
+
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(getLayoutId(), parent, false);
@@ -162,18 +162,6 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     }
 
     protected void loadImage(final M current, final ItemViewHolder holder) throws IOException {
-        String cacheId = getCacheId(current);
-        if (cache.containsKey(cacheId)) {
-            Bitmap resource = cache.get(cacheId);
-            if (tintBackground) {
-                int color = Palette.from(resource).generate().getMutedColor(0xFFFFFF);
-                holder.layout.setBackgroundColor(color);
-            }
-
-            holder.image.setImageBitmap(resource);
-
-            return;
-        }
 
         fullRequest.load(getMediaCover(current))
             .fallback(ImageUtils.getFallback(context))
@@ -207,13 +195,11 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                     if (resource == null) {
                         return;
                     }
-                    if (tintBackground) {
+                    if (mTintBackground) {
                         int color = Palette.from(resource).generate().getMutedColor(0xFFFFFF);
                         holder.layout.setBackgroundColor(color);
                     }
-                    cache.put(current.getId(), resource);
-                    
-                    verifyCache();
+
                 }
 
                 @Override
@@ -222,14 +208,6 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                 }
             });
     }
-    
-    private void verifyCache() {
-        if (cache.size() > MAX_CACHE_SIZE) {
-            cache.remove(cache.entrySet().iterator().next().getKey());
-        }
-    }
-
-    protected abstract String getCacheId(M item);
 
     protected abstract MediaCover getMediaCover(M item);
 

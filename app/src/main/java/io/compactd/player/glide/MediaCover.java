@@ -33,4 +33,37 @@ public class MediaCover {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "MediaCover{" +
+                "artist=" + artist +
+                ", album=" + album +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MediaCover that = (MediaCover) o;
+
+        if (artist != null && !artist.equals(that.artist)) {
+            return false;
+        }
+
+        if (album != null && !album.equals(that.album)) {
+            return false;
+        }
+
+        return that.album == null && that.artist == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = artist != null ? artist.getId().hashCode() : 0;
+        result = 31 * result + (album != null ? album.getId().hashCode() : 0);
+        return result;
+    }
 }
