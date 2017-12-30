@@ -3,8 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="io.compactd.player.ui.activities.ArtistActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_sync"
+        android:checkable="true"
+        android:checked="true"
+        android:enabled="false"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/sync_offline"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_play_next"
+        android:title="@string/play_next" />
+    <item
+        android:id="@+id/action_play_shuffled"
+        android:title="Play shuffled" />
 </menu>

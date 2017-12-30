@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Go to artist" />
+    <item android:title="Play all" />
+    <item
+        android:checkable="true"
+        android:checked="true"
+        android:enabled="false"
+        android:title="@string/sync_offline" />
+</menu>

@@ -2,6 +2,7 @@ package io.compactd.player.ui.views;
 
 
 import android.content.Intent;
+import android.media.Image;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -38,6 +39,8 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.image)
     public ImageView image;
 
+    @BindView(R.id.overflow_icon)
+    public ImageView overflowImage;
 
     public ItemViewHolder(View itemView) {
         super(itemView);

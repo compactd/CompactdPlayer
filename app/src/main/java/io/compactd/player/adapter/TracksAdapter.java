@@ -1,13 +1,21 @@
 package io.compactd.player.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
+import android.view.View;
+
+import java.util.Collections;
 
 import io.compactd.client.CompactdClient;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.client.models.SyncOptions;
+import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
+import io.compactd.player.utils.NavigationUtils;
 import io.compactd.player.utils.PreferenceUtil;
 
 /**
@@ -32,6 +40,29 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     @Override
     protected String getTitle(CompactdTrack item) {
         return item.getName();
+    }
+
+    @Override
+    protected PopupMenu inflateMenu(View view, CompactdTrack model) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        popupMenu.inflate(R.menu.menu_track);
+        return popupMenu;
+    }
+
+    @Override
+    protected boolean onMenuOptionSelected(MenuItem item, CompactdTrack model) {
+        switch (item.getItemId()) {
+            case R.id.action_goto_album:
+                NavigationUtils.goToAlbum((Activity) context, model.getAlbum());
+                return true;
+            case R.id.action_goto_artist:
+                NavigationUtils.goToArtist((Activity) context, model.getArtist());
+                return true;
+            case R.id.action_play_after:
+                MusicPlayerRemote.getInstance(context).insert(Collections.singletonList(model));
+                return true;
+        }
+        return false;
     }
 
     @Override

@@ -7,10 +7,12 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -72,6 +74,15 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         this.mTintBackground = tintBackground;
     }
 
+    public boolean showMenu () {
+        return mShowMenu;
+    }
+
+    public void setShowMenu(boolean mShowMenu) {
+        this.mShowMenu = mShowMenu;
+    }
+
+
     public enum LayoutType {
         GridItem, ListItem
     }
@@ -119,6 +130,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, final int position) {
+        final M model = items.get(position);
         holder.image.setImageDrawable(null);
         holder.setIsRecyclable(false);
 
@@ -131,6 +143,23 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
             holder.image.getLayoutParams().height = devicewidth;
         }
 
+        holder.overflowImage.setVisibility(showMenu() ? View.VISIBLE : View.GONE);
+
+        if (showMenu()) {
+            holder.overflowImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu menu = inflateMenu(view, model);
+                    menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            return onMenuOptionSelected(item, model);
+                        }
+                    });
+                    menu.show();
+                }
+            });
+        }
 
         final M current = items.get(position);
 
@@ -214,6 +243,10 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     protected abstract String getText(M item);
 
     protected abstract String getTitle(M item);
+
+    protected abstract PopupMenu inflateMenu(View view, M model);
+
+    protected abstract boolean onMenuOptionSelected(MenuItem item, M model);
 
     @Override
     public int getItemCount() {
