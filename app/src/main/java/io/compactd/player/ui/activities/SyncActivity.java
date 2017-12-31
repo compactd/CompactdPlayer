@@ -1,19 +1,22 @@
 package io.compactd.player.ui.activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StatFs;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -21,7 +24,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.codekidlabs.storagechooser.StorageChooser;
 import com.couchbase.lite.CouchbaseLiteException;
 
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
@@ -34,7 +36,6 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.CompactdPreset;
-import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.client.models.SyncOptions;
@@ -42,6 +43,8 @@ import io.compactd.player.utils.FormatUtil;
 import io.compactd.player.utils.PreferenceUtil;
 
 public class SyncActivity extends SlidingMusicActivity implements View.OnClickListener {
+    private static final String SYNC_CHANNEL_ID = "sync_channel";
+    public static int NOTIFICATION_ID = 0x5de;
 
     @BindView(R.id.sync_fab)
     FloatingActionButton fab;
@@ -69,6 +72,9 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
 
     private Unbinder unbinder;
     private SyncOptions mOptions;
+    private NotificationManager mNotificationManager;
+    private ThreadPoolExecutor threadPoolExecutor;
+    private boolean mBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +84,13 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         mOptions = new SyncOptions();
 
         unbinder = ButterKnife.bind(this);
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         setTitle("Sync");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -156,6 +166,19 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         return true;
     }
 
+    @SuppressWarnings("deprecation")
+    private long getAvailableBlocks(StatFs statFs) {
+        long availableBlocks;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            availableBlocks = statFs.getAvailableBlocksLong();
+        } else {
+            availableBlocks = statFs.getAvailableBlocks();
+        }
+
+        return availableBlocks;
+    }
+
     private void updateSizeStatus() {
         fab.hide();
         sizeText.setText(R.string.size_view_loader);
@@ -165,20 +188,20 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
                 try {
                     final long size = CompactdTrack.computeRequiredStorage(CompactdManager.getInstance(SyncActivity.this), mOptions);
                     StatFs stat = new StatFs(mOptions.getDestination());
-                    final long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getBlockCount();
+                    final long bytesAvailable = (long)stat.getBlockSize() * getAvailableBlocks(stat);
                     final String req = FormatUtil.humanReadableByteCount(size, true);
                     final String left = FormatUtil.humanReadableByteCount(bytesAvailable, true);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            sizeText.setText(getString(R.string.size_view_text, req, left));
+                        sizeText.setText(getString(R.string.size_view_text, req, left));
 
-                            if (size < bytesAvailable) {
-                                fab.show();
-                                sizeText.setError(null);
-                            } else {
-                                sizeText.setError(getString(R.string.nospace_left));
-                            }
+                        if (size < bytesAvailable) {
+                            fab.show();
+                            sizeText.setError(null);
+                        } else {
+                            sizeText.setError(getString(R.string.nospace_left));
+                        }
 
                         }
                     });
@@ -203,6 +226,19 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         noMediaSwitch.setEnabled(false);
         presetLayout.setEnabled(false);
         destinationLayout.setEnabled(false);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setupNotificationChannel();
+        }
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, SYNC_CHANNEL_ID);
+        builder.setContentTitle(getString(R.string.sync_notification_title));
+        builder.setContentText(getString(mOptions.getPreset().getDesc()));
+        builder.setSmallIcon(R.drawable.ic_sync_black_24dp);
+        builder.setProgress(100, 0, true);
+
+        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+
         final Snackbar snackbar = Snackbar.make(mainLayout, R.string.sync_in_progress, Snackbar.LENGTH_INDEFINITE);
 
         snackbar.show();
@@ -216,11 +252,11 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
             return;
         }
 
-        final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
 
         for (final CompactdTrack track : items) {
             if (!track.isAvailableOffline()) {
-                executor.execute(new Runnable() {
+                threadPoolExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         track.setStorageOptions(mOptions);
@@ -235,14 +271,14 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
         snackbar.setAction("Cancel", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            timer.cancel();
-            timer.purge();
-            executor.shutdownNow();
-            snackbar.dismiss();
-            fab.show();
-            noMediaSwitch.setEnabled(true);
-            presetLayout.setEnabled(true);
-            destinationLayout.setEnabled(true);
+                timer.cancel();
+                timer.purge();
+                threadPoolExecutor.shutdownNow();
+                snackbar.dismiss();
+                fab.show();
+                noMediaSwitch.setEnabled(true);
+                presetLayout.setEnabled(true);
+                destinationLayout.setEnabled(true);
             }
         });
 
@@ -252,25 +288,59 @@ public class SyncActivity extends SlidingMusicActivity implements View.OnClickLi
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                snackbar.setText("Syncing tracks ("+executor.getCompletedTaskCount() + "/"+executor.getTaskCount()+")");
-                if (executor.getTaskCount() == executor.getCompletedTaskCount()) {
-                    snackbar.dismiss();
-                    fab.show();
-                    timer.cancel();
-                    timer.purge();
-                    noMediaSwitch.setEnabled(true);
-                    presetLayout.setEnabled(true);
-                    destinationLayout.setEnabled(true);
-                }
+                    builder.setProgress((int) threadPoolExecutor.getTaskCount(),
+                            (int) threadPoolExecutor.getCompletedTaskCount(), false);
+                    mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+
+                    snackbar.setText("Syncing tracks ("+ threadPoolExecutor.getCompletedTaskCount() + "/"+ threadPoolExecutor.getTaskCount()+")");
+
+                    if (threadPoolExecutor.getTaskCount() == threadPoolExecutor.getCompletedTaskCount()) {
+
+                        snackbar.dismiss();
+                        fab.show();
+                        timer.cancel();
+                        timer.purge();
+
+                        noMediaSwitch.setEnabled(true);
+                        presetLayout.setEnabled(true);
+                        destinationLayout.setEnabled(true);
+                        mNotificationManager.cancel(NOTIFICATION_ID);
+
+                        if (mBackground) {
+                            finish();
+                        }
+                    }
                 }
             });
             }
         }, 250, 1000);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(SYNC_CHANNEL_ID,
+                getString(R.string.sync_channel_name), NotificationManager.IMPORTANCE_LOW);
+        mNotificationManager.createNotificationChannel(channel);
+    }
+
     @Override
     public void onBackPressed() {
-        Log.d(TAG, "onBackPressed: ");
-        finish();
+        if (threadPoolExecutor == null || threadPoolExecutor.isTerminated()) {
+            finish();
+        } else {
+            moveTaskToBack(true);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBackground = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBackground = false;
     }
 }

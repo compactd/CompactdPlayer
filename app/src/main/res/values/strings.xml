@@ -52,4 +52,6 @@
     <string name="size_view_text">%1s required (%2s left on device)</string>
     <string name="size_view_loader">Please wait...</string>
     <string name="nospace_left">Not enough space left on device</string>
+    <string name="sync_channel_name">Sync progress</string>
+    <string name="sync_notification_title">Syncing music content</string>
 </resources>

@@ -21,22 +21,26 @@
         <activity
             android:name=".ui.activities.LibraryActivity"
             android:label="@string/title_activity_library"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.activities.ArtistActivity"
+            android:launchMode="singleInstance"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.activities.AlbumActivity"
+            android:launchMode="singleInstance"
             android:label="@string/title_activity_album"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name=".service.MediaPlayerService" />
+        <service android:name=".service.MediaPlayerService" android:enabled="true" />
 
         <activity
             android:name=".ui.activities.SyncActivity"
+            android:launchMode="singleInstance"
             android:label="@string/title_activity_sync"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
