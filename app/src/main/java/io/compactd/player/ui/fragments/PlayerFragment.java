@@ -1,5 +1,6 @@
 package io.compactd.player.ui.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,6 +33,7 @@ import android.widget.TextView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.ImageViewTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.signature.ObjectKey;
 import com.couchbase.lite.CouchbaseLiteException;
@@ -290,6 +293,18 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
             .load(new MediaCover(track.getAlbum()))
             .dontAnimate()
             .into(new BitmapImageViewTarget(coverView) {
+                @Override
+                public void getSize(SizeReadyCallback cb) {
+                    super.getSize(new SizeReadyCallback() {
+                        @Override
+                        public void onSizeReady(int width, int height) {}
+                    });
+                    DisplayMetrics displaymetrics = new DisplayMetrics();
+                    ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+                    int pixels = displaymetrics.widthPixels;
+                    cb.onSizeReady(pixels, pixels);
+                }
+
                 @Override
                 protected void setResource(Bitmap resource) {
                     if (resource == null) return;
