@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,8 +28,11 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.ImageViewTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.signature.ObjectKey;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -56,6 +61,7 @@ import static io.compactd.player.ui.activities.SlidingMusicActivity.DELAY_MILLIS
 
 public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener, Toolbar.OnMenuItemClickListener {
 
+    private static final String TAG = PlayerFragment.class.getSimpleName();
     @BindView(R.id.player_toolbar)
     Toolbar toolbar;
 
@@ -119,8 +125,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     private Handler handler;
     private PlaylistItemAdapter tracksAdapter;
 
-    public PlayerFragment() {
-    }
+    public PlayerFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -151,12 +156,12 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         playPauseFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
-                if (remote.isPlaying()) {
-                    remote.pauseMedia();
-                } else {
-                    remote.playMedia();
-                }
+            MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
+            if (remote.isPlaying()) {
+                remote.pauseMedia();
+            } else {
+                remote.playMedia();
+            }
             }
         });
         nextButton.setColorFilter(Color.BLACK);
@@ -236,24 +241,39 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+    }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
         MusicPlayerRemote remote  = MusicPlayerRemote.getInstance(getContext());
         remote.addMediaListener(this);
         remote.addPlaybackListener(this);
+
+        if (remote.isPlaying()) {
+            onMediaLoaded(remote.getCurrent());
+            onQueueChanged(remote.getPlaylist(0));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MusicPlayerRemote remote = MusicPlayerRemote.getInstance(getContext());
+        remote.removePlaybackListener(this);
+        remote.removeMediaListener(this);
+
     }
 
     @Override
     public void onDetach() {
-        MusicPlayerRemote remote = MusicPlayerRemote.getInstance(getContext());
-        remote.removePlaybackListener(this);
-        remote.removeMediaListener(this);
-        
         super.onDetach();
     }
 
     @Override
     public void onMediaLoaded(CompactdTrack track) {
+        final String tag = "(" + track.getId() + ") ";
+        Log.d(TAG, "onMediaLoaded: " + track + "; " + track.getAlbum());
         try {
             track.fetch();
         } catch (CouchbaseLiteException e) {
@@ -263,18 +283,39 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         currentTitle.setText(track.getName());
         currentImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
+        coverView.setImageBitmap(null);
+
         GlideApp.with(this)
-            .asBitmap()
+            .asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE)
             .load(new MediaCover(track.getAlbum()))
+            .dontAnimate()
             .into(new BitmapImageViewTarget(coverView) {
                 @Override
                 protected void setResource(Bitmap resource) {
                     if (resource == null) return;
-                    int color = Palette.from(resource).generate().getLightMutedColor(Color.TRANSPARENT);
+                    int color = Palette.from(resource).generate().getLightMutedColor(Color.WHITE);
                     playerFooterFrame.setBackgroundColor(color);
                     backgroundView.setBackgroundColor(color);
 
                     super.setResource(resource);
+                }
+
+                @Override
+                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                    super.onLoadFailed(errorDrawable);
+                    Log.d(TAG, "onLoadFailed: ");
+                }
+
+                @Override
+                public void onResourceReady(Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    super.onResourceReady(resource, transition);
+                    Log.d(TAG, "onResourceReady: " + tag + resource);
+                }
+
+                @Override
+                protected Object clone() throws CloneNotSupportedException {
+                    Log.d(TAG, "clone: " + tag);
+                    return super.clone();
                 }
             });
 
@@ -354,8 +395,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        MusicPlayerRemote.getInstance(getContext()).removeMediaListener(this);
-        MusicPlayerRemote.getInstance(getContext()).removePlaybackListener(this);
     }
 
     @Override
@@ -366,7 +405,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
                 remote.clearQueue();
                 return true;
             case R.id.menu_item_stop:
-                remote.destroyMedia(getContext());
+                remote.destroyMedia();
                 return true;
         }
         return false;
