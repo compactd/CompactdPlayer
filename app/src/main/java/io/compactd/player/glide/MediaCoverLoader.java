@@ -16,7 +16,7 @@ public class MediaCoverLoader implements ModelLoader<MediaCover, InputStream> {
     @Nullable
     @Override
     public LoadData<InputStream> buildLoadData(MediaCover mediaCover, int width, int height, Options options) {
-        return new LoadData<InputStream>(new ObjectKey(mediaCover), new MediaCoverFetcher(mediaCover));
+        return new LoadData<InputStream>(new ObjectKey(mediaCover.getArtwork().getId()), new MediaCoverFetcher(mediaCover));
     }
 
     @Override
