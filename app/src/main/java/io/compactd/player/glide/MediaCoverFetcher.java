@@ -19,7 +19,6 @@ import io.compactd.client.models.CompactdArtwork;
 
 public class MediaCoverFetcher implements DataFetcher<InputStream> {
     private final MediaCover mediaCover;
-    private boolean cancelled = false;
     private InputStream stream;
 
     public MediaCoverFetcher(MediaCover mediaCover) {
@@ -31,11 +30,7 @@ public class MediaCoverFetcher implements DataFetcher<InputStream> {
         CompactdArtwork artwork = mediaCover.getArtwork();
         try {
             stream = artwork.getImage(ArtworkSize.LARGE);
-            if (cancelled) {
-                callback.onLoadFailed(new RuntimeException("Cancelled"));
-            } else {
-                callback.onDataReady(stream);
-            }
+            callback.onDataReady(stream);
         } catch (NullPointerException e) {
             callback.onLoadFailed(e);
         }
@@ -54,7 +49,7 @@ public class MediaCoverFetcher implements DataFetcher<InputStream> {
 
     @Override
     public void cancel() {
-        cancelled = true;
+
     }
 
     @NonNull
