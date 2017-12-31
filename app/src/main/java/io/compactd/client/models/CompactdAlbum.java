@@ -258,9 +258,7 @@ public class CompactdAlbum extends CompactdModel {
         Map<String, Object> properties = new HashMap<>();
         properties.putAll(doc.getProperties());
 
-        if (isExcludedFromSync()) {
-            properties.put(KEY_EXCLUDED_FROM_SYNC, true);
-        }
+        properties.put(KEY_EXCLUDED_FROM_SYNC, isExcludedFromSync());
         try {
             doc.putProperties(properties);
         } catch (CouchbaseLiteException e) {
