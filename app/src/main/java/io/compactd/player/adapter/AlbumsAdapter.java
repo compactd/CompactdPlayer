@@ -2,7 +2,6 @@ package io.compactd.player.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
@@ -18,9 +17,7 @@ import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.CompactdParcel;
 import io.compactd.player.helpers.MusicPlayerRemote;
-import io.compactd.player.ui.activities.AlbumActivity;
 import io.compactd.player.ui.views.ItemViewHolder;
 import io.compactd.player.utils.NavigationUtils;
 
@@ -52,11 +49,12 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     protected PopupMenu inflateMenu(View view, CompactdAlbum album) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.inflate(R.menu.menu_album);
+        popupMenu.getMenu().findItem(R.id.menu_sync_offline).setChecked(!album.isExcludedFromSync());
         return popupMenu;
     }
 
     @Override
-    protected boolean onMenuOptionSelected(MenuItem item, CompactdAlbum album) {
+    protected boolean onMenuOptionSelected(MenuItem item, CompactdAlbum album, ItemViewHolder holder) {
         switch (item.getItemId()) {
             case R.id.menu_goto_artist:
                 NavigationUtils.goToArtist((Activity) context, album.getArtist());
@@ -83,6 +81,7 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
                 item.setChecked(!item.isChecked());
                 album.setExcludedFromSync(!item.isChecked());
                 album.update();
+                updateStatus(holder, album);
                 return true;
         }
         return false;
@@ -93,5 +92,10 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
         super.onItemSelected(current, position, holder);
 
         NavigationUtils.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_album_cover)));
+    }
+
+    @Override
+    protected int getStatusResource(CompactdAlbum item) {
+        return item.isExcludedFromSync() ? R.drawable.ic_sync_disabled_white_24dp : 0;
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -153,7 +154,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
                     menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            return onMenuOptionSelected(item, model);
+                            return onMenuOptionSelected(item, model, holder);
                         }
                     });
                     menu.show();
@@ -176,13 +177,14 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
             e.printStackTrace();
         }
 
-
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onItemSelected(current, position, holder);
             }
         });
+
+        updateStatus(holder, model);
 
     }
 
@@ -246,7 +248,23 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
 
     protected abstract PopupMenu inflateMenu(View view, M model);
 
-    protected abstract boolean onMenuOptionSelected(MenuItem item, M model);
+    protected abstract boolean onMenuOptionSelected(MenuItem item, M model, ItemViewHolder holder);
+
+    protected int getStatusResource (M item) {
+        return 0;
+    }
+
+    void updateStatus (ItemViewHolder holder, M item) {
+        if (holder.statusImage != null) {
+            int resource = getStatusResource(item);
+            if (resource == 0) {
+                holder.statusImage.setVisibility(View.GONE);
+            } else {
+                holder.statusImage.setVisibility(View.VISIBLE);
+                holder.statusImage.setImageDrawable(ContextCompat.getDrawable(context, resource));
+            }
+        }
+    }
 
     @Override
     public int getItemCount() {

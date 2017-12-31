@@ -54,7 +54,7 @@ public class ArtistsAdapter extends ModelAdapter<CompactdArtist> {
     }
 
     @Override
-    protected boolean onMenuOptionSelected(MenuItem item, CompactdArtist model) {
+    protected boolean onMenuOptionSelected(MenuItem item, CompactdArtist model, ItemViewHolder holder) {
         switch (item.getItemId()) {
             case R.id.action_play_shuffled:
                 try {

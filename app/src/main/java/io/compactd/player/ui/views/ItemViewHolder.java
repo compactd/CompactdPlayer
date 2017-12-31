@@ -3,6 +3,7 @@ package io.compactd.player.ui.views;
 
 import android.content.Intent;
 import android.media.Image;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Optional;
 import butterknife.Unbinder;
 import io.compactd.client.models.CompactdAlbum;
 import io.compactd.player.R;
@@ -41,6 +43,10 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.overflow_icon)
     public ImageView overflowImage;
+
+    @Nullable
+    @BindView(R.id.status_image)
+    public ImageView statusImage;
 
     public ItemViewHolder(View itemView) {
         super(itemView);

@@ -3,10 +3,8 @@ package io.compactd.player.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
@@ -57,7 +55,7 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     }
 
     @Override
-    protected boolean onMenuOptionSelected(MenuItem item, CompactdTrack model) {
+    protected boolean onMenuOptionSelected(MenuItem item, CompactdTrack model, ItemViewHolder holder) {
         switch (item.getItemId()) {
             case R.id.action_goto_album:
                 NavigationUtils.goToAlbum((Activity) context, model.getAlbum());
