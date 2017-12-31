@@ -373,7 +373,7 @@ public class CompactdTrack extends CompactdModel {
         long size = 0;
 
         for (CompactdTrack track : filtered) {
-            size += track.getDuration() * opts.getPreset().getBitrate() * 1000;
+            size += track.getDuration() * opts.getPreset().getBitrate() * 1000 / 8;
         }
         return size;
     }
