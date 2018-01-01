@@ -1,4 +1,39 @@
-# CompactdPlayer - Changelog
+# Compactd Player
+
+## 1.0.0-alpha.2 ( Mon Jan 01 2018 22:37:05 GMT+0100 (Paris, Madrid) )
+
+
+## Bug Fixes
+  - crash when changing showHidden when TracksFragment hasn't been initialized yet
+  ([23e3fc59](https://github.com/compactd/CompactdPlayer/commit/23e3fc59b87fbaab99ad6ddc634195c7cd50d76d))
+  - player close button collapses the player
+  ([35ad87bf](https://github.com/compactd/CompactdPlayer/commit/35ad87bf776b3dd110aaa73e3dc1ae9666e26f24))
+  - pin sync activity back button and white foreground
+  ([77c7dd28](https://github.com/compactd/CompactdPlayer/commit/77c7dd2852d4457d5693f6fa56d87b1bb15c3765))
+  - remove player from sync activity
+  ([7a0a40f2](https://github.com/compactd/CompactdPlayer/commit/7a0a40f2580a7d083f8a1455d71af002710ffc63))
+  - more accurate grid item image size compute
+  ([d12b7fc6](https://github.com/compactd/CompactdPlayer/commit/d12b7fc678c785ecd828389a00716b8ae4eecc8e))
+
+## Features
+  - fuzzy search view
+  ([48be232e](https://github.com/compactd/CompactdPlayer/commit/48be232e8cac5224d0ea3a85099c308fc6b4ec12))
+  - add menu and shadow to artist view
+  ([a868b04a](https://github.com/compactd/CompactdPlayer/commit/a868b04a5c78268fd272437d496b947302eed0c0))
+  - preload item for better scroll performance
+  ([4fc5d20c](https://github.com/compactd/CompactdPlayer/commit/4fc5d20c46f16f0f2f709da60f951563fad703ae))
+
+
+## Refactor
+  - rename utils and helpers package
+  ([4d4cd3c4](https://github.com/compactd/CompactdPlayer/commit/4d4cd3c4509f35525ced70fa42b5b7b12a4b18c2))
+  - singularize util and helper and remove unused classes
+  ([e3d870bd](https://github.com/compactd/CompactdPlayer/commit/e3d870bdd5f686e74a4b43f4f989cc52c7e7928c))
+
+## Style
+  - use Product Sans for searchview hint
+  ([ef75e427](https://github.com/compactd/CompactdPlayer/commit/ef75e4276ce575c5ffb6fd1988ec6e14633a84af))
+
 
 ## 1.0.0-alpha.2 ( Sun Dec 31 2017 19:00:28 GMT+0100 (Paris, Madrid) )
 
