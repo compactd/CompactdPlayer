@@ -12,7 +12,7 @@ import java.io.IOException;
  * Created by vinz243 on 13/12/2017.
  */
 
-public class ImageUtils {
+public class ImageUtil {
 
     private static Drawable fallback;
 

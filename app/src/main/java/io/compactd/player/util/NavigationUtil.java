@@ -17,7 +17,7 @@ import io.compactd.player.ui.activities.ArtistActivity;
  * Created by Vincent on 29/12/2017.
  */
 
-public class NavigationUtils {
+public class NavigationUtil {
     public static void goToArtist(@NonNull final Activity activity, final CompactdArtist artist, @Nullable Pair... sharedElements) {
         final Intent intent = new Intent(activity, ArtistActivity.class);
         intent.putExtra(ArtistActivity.BUNDLE_ARTIST_KEY, new CompactdParcel<>(artist));

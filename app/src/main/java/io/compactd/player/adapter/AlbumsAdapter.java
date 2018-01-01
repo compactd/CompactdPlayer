@@ -19,7 +19,7 @@ import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.NavigationUtils;
+import io.compactd.player.utils.NavigationUtil;
 
 /**
  * Created by vinz243 on 12/12/2017.
@@ -57,7 +57,7 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     protected boolean onMenuOptionSelected(MenuItem item, CompactdAlbum album, ItemViewHolder holder) {
         switch (item.getItemId()) {
             case R.id.menu_goto_artist:
-                NavigationUtils.goToArtist((Activity) context, album.getArtist());
+                NavigationUtil.goToArtist((Activity) context, album.getArtist());
                 return true;
             case R.id.menu_play_shuffle:
                 try {
@@ -91,7 +91,7 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     protected void onItemSelected(CompactdAlbum current, int position, ItemViewHolder holder) {
         super.onItemSelected(current, position, holder);
 
-        NavigationUtils.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_album_cover)));
+        NavigationUtil.goToAlbum((Activity) context, current, Pair.create(holder.image, context.getString(R.string.transition_album_cover)));
     }
 
     @Override

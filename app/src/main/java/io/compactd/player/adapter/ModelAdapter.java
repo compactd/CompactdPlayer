@@ -35,7 +35,7 @@ import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.GlideRequest;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.ImageUtils;
+import io.compactd.player.utils.ImageUtil;
 
 /**
  * Created by vinz243 on 15/12/2017.
@@ -195,7 +195,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     protected void loadImage(final M current, final ItemViewHolder holder) throws IOException {
 
         fullRequest.load(getMediaCover(current))
-            .fallback(ImageUtils.getFallback(context))
+            .fallback(ImageUtil.getFallback(context))
             .into(new BitmapImageViewTarget(holder.image) {
                 @Override
                 public void getSize(final SizeReadyCallback cb) {

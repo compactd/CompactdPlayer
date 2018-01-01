@@ -6,16 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,8 +18,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.couchbase.lite.CouchbaseLiteException;
-
-import org.w3c.dom.Text;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -35,17 +28,15 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdAlbum;
-import io.compactd.client.models.CompactdArtist;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.CompactdParcel;
 import io.compactd.player.helpers.MusicPlayerRemote;
-import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
-import io.compactd.player.utils.NavigationUtils;
+import io.compactd.player.utils.NavigationUtil;
 
 public class AlbumActivity extends SlidingMusicActivity {
 
@@ -157,7 +148,7 @@ public class AlbumActivity extends SlidingMusicActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_goto_artist:
-                NavigationUtils.goToArtist(this, album.getArtist());
+                NavigationUtil.goToArtist(this, album.getArtist());
                 return true;
             case R.id.menu_play_shuffle:
                 try {

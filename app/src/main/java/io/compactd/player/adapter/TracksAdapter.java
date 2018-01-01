@@ -17,7 +17,7 @@ import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.NavigationUtils;
+import io.compactd.player.utils.NavigationUtil;
 import io.compactd.player.utils.PreferenceUtil;
 
 /**
@@ -58,10 +58,10 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     protected boolean onMenuOptionSelected(MenuItem item, CompactdTrack model, ItemViewHolder holder) {
         switch (item.getItemId()) {
             case R.id.action_goto_album:
-                NavigationUtils.goToAlbum((Activity) context, model.getAlbum());
+                NavigationUtil.goToAlbum((Activity) context, model.getAlbum());
                 return true;
             case R.id.action_goto_artist:
-                NavigationUtils.goToArtist((Activity) context, model.getArtist());
+                NavigationUtil.goToArtist((Activity) context, model.getArtist());
                 return true;
             case R.id.action_play_after:
                 MusicPlayerRemote.getInstance(context).insert(Collections.singletonList(model));

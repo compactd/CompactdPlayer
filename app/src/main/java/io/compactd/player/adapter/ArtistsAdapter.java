@@ -19,7 +19,7 @@ import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helpers.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.NavigationUtils;
+import io.compactd.player.utils.NavigationUtil;
 
 /**
  * Created by vinz243 on 12/12/2017.
@@ -82,7 +82,7 @@ public class ArtistsAdapter extends ModelAdapter<CompactdArtist> {
 
     @Override
     protected void onItemSelected(CompactdArtist artist, int position, ItemViewHolder holder) {
-        NavigationUtils.goToArtist((Activity) context, artist,
+        NavigationUtil.goToArtist((Activity) context, artist,
                 Pair.create(holder.image, context.getString(R.string.transition_artist_cover)));
     }
 }
