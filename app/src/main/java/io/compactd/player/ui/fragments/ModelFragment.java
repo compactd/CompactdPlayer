@@ -1,5 +1,6 @@
 package io.compactd.player.ui.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
@@ -11,6 +12,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.bumptech.glide.ListPreloader;
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
+import com.bumptech.glide.util.FixedPreloadSizeProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -126,6 +131,15 @@ public abstract class ModelFragment<T extends CompactdModel> extends Fragment {
             adapter.swapItems(items);
 
             recyclerView.setAdapter(adapter);
+            int size = adapter.getImageSize();
+            ListPreloader.PreloadSizeProvider<T> sizeProvider = new FixedPreloadSizeProvider<>(size, size);
+
+            assert getContext() != null;
+
+            RecyclerViewPreloader<T> preloader = new RecyclerViewPreloader<>(
+                    (Activity) getContext(), adapter, sizeProvider, 6);
+
+            recyclerView.addOnScrollListener(preloader);
 
         } catch (java.lang.InstantiationException e) {
             e.printStackTrace();

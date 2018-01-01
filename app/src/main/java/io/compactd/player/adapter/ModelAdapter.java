@@ -64,7 +64,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
     @Override
     public RequestBuilder<?> getPreloadRequestBuilder(M item) {
         MediaCover cover = getMediaCover(item);
-        return fullRequest.clone().thumbnail(0.2f).load(cover);
+        return fullRequest.clone().load(cover);
     }
 
     public boolean tintBackground() {
