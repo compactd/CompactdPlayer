@@ -11,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -41,7 +42,7 @@ import io.compactd.client.models.SyncOptions;
 import io.compactd.player.util.FormatUtil;
 import io.compactd.player.util.PreferenceUtil;
 
-public class SyncActivity extends SlidingMusicActivity implements View.OnClickListener {
+public class SyncActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String SYNC_CHANNEL_ID = "sync_channel";
     public static int NOTIFICATION_ID = 0x5de;
 
