@@ -15,4 +15,6 @@
     <dimen name="player_panel_height">68dp</dimen>
     <dimen name="min_player_panel_height">96dp</dimen>
     <dimen name="list_item_height">64dp</dimen>
+    <dimen name="grid_item_margin">2dp</dimen>
+    <dimen name="list_item_image_width">64dp</dimen>
 </resources>

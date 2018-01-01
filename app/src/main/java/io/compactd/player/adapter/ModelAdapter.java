@@ -97,7 +97,7 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         this.inflater = LayoutInflater.from(context);
         this.layoutType  = layoutType;
         this.fullRequest = GlideApp.with(context).asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .priority(Priority.LOW);
     }
 
@@ -136,12 +136,10 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
         holder.setIsRecyclable(false);
 
         if (layoutType == LayoutType.GridItem) {
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int devicewidth = displaymetrics.widthPixels / 3;
+            int width = getGridImageSize();
 
-            holder.image.getLayoutParams().width = devicewidth;
-            holder.image.getLayoutParams().height = devicewidth;
+            holder.image.getLayoutParams().width = width;
+            holder.image.getLayoutParams().height = width;
         }
 
         holder.overflowImage.setVisibility(showMenu() ? View.VISIBLE : View.GONE);
@@ -188,6 +186,23 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
 
     }
 
+    private int getGridImageSize() {
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        return displaymetrics.widthPixels / 3 - 2 * context.getResources().getDimensionPixelSize(R.dimen.grid_item_margin);
+    }
+
+    private int getListImageSize () {
+        return context.getResources().getDimensionPixelSize(R.dimen.list_item_image_width);
+    }
+
+    public int getImageSize () {
+        if (layoutType == LayoutType.ListItem) {
+            return getListImageSize();
+        }
+        return getGridImageSize();
+    }
+
     protected void onItemSelected(M current, int position, ItemViewHolder holder) {
 
     }
@@ -199,25 +214,14 @@ public abstract class ModelAdapter<M extends CompactdModel> extends RecyclerView
             .into(new BitmapImageViewTarget(holder.image) {
                 @Override
                 public void getSize(final SizeReadyCallback cb) {
+                    int size = getImageSize();
+                    cb.onSizeReady(size, size);
 
                     super.getSize(new SizeReadyCallback() {
                         @Override
                         public void onSizeReady(int width, int height) {
-                            DisplayMetrics displaymetrics = new DisplayMetrics();
-                            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-
-                            if (layoutType == LayoutType.GridItem) {
-                                int devicewidth = displaymetrics.widthPixels / 3;
-
-                                cb.onSizeReady(devicewidth, devicewidth);
-                            } else {
-                                int dp = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, 64, displaymetrics );
-                                cb.onSizeReady(dp, dp);
-                            }
                         }
                     });
-
-
                 }
 
                 @Override

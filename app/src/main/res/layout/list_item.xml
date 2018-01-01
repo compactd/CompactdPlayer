@@ -14,12 +14,12 @@
         tools:ignore="UnusedAttribute,UselessParent">
 
         <io.compactd.player.ui.views.WidthFitSquareLayout
-            android:layout_width="64dp"
+            android:layout_width="@dimen/list_item_image_width"
             android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/image"
-                android:layout_width="64dp"
+                android:layout_width="@dimen/list_item_image_width"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="10dp"
