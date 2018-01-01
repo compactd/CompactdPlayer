@@ -32,11 +32,11 @@ import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.CompactdParcel;
-import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.helper.CompactdParcel;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
-import io.compactd.player.utils.NavigationUtil;
+import io.compactd.player.util.NavigationUtil;
 
 public class AlbumActivity extends SlidingMusicActivity {
 

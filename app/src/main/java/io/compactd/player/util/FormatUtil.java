@@ -1,4 +1,4 @@
-package io.compactd.player.utils;
+package io.compactd.player.util;
 
 import java.text.DecimalFormat;
 import java.util.Locale;

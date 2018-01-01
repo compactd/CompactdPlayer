@@ -35,7 +35,7 @@ import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.GlideRequest;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.ImageUtil;
+import io.compactd.player.util.ImageUtil;
 
 /**
  * Created by vinz243 on 15/12/2017.

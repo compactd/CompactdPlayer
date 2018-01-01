@@ -1,6 +1,5 @@
-package io.compactd.player.helpers;
+package io.compactd.player.helper;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

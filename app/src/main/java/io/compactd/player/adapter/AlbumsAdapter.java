@@ -17,9 +17,9 @@ import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.NavigationUtil;
+import io.compactd.player.util.NavigationUtil;
 
 /**
  * Created by vinz243 on 12/12/2017.

@@ -1,4 +1,4 @@
-package io.compactd.player.utils;
+package io.compactd.player.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;

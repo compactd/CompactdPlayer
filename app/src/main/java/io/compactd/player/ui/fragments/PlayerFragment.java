@@ -4,11 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -32,14 +28,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.bumptech.glide.request.target.ImageViewTarget;
 import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.transition.Transition;
-import com.bumptech.glide.signature.ObjectKey;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -50,17 +42,12 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
-import io.compactd.player.adapter.ModelAdapter;
 import io.compactd.player.adapter.PlaylistItemAdapter;
-import io.compactd.player.adapter.TracksAdapter;
 import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
-import io.compactd.player.ui.activities.SlidingMusicActivity;
 import io.compactd.player.ui.views.WidthFitSquareLayout;
-
-import static io.compactd.player.ui.activities.SlidingMusicActivity.DELAY_MILLIS;
 
 public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener, Toolbar.OnMenuItemClickListener {
 

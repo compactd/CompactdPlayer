@@ -2,23 +2,18 @@ package io.compactd.player.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.couchbase.lite.CouchbaseLiteException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
-import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.MusicPlayerRemote;
-import io.compactd.player.ui.views.ItemViewHolder;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.views.PlaylistItemViewHolder;
 
 /**

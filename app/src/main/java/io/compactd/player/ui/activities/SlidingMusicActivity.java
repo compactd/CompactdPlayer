@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -21,7 +20,7 @@ import java.util.List;
 import butterknife.Unbinder;
 import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
-import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 

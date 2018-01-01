@@ -15,10 +15,10 @@ import io.compactd.client.models.CompactdTrack;
 import io.compactd.client.models.SyncOptions;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
-import io.compactd.player.helpers.MusicPlayerRemote;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
-import io.compactd.player.utils.NavigationUtil;
-import io.compactd.player.utils.PreferenceUtil;
+import io.compactd.player.util.NavigationUtil;
+import io.compactd.player.util.PreferenceUtil;
 
 /**
  * Created by vinz243 on 15/12/2017.

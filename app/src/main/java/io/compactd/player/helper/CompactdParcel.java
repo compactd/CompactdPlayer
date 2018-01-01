@@ -1,4 +1,4 @@
-package io.compactd.player.helpers;
+package io.compactd.player.helper;
 
 import android.os.Parcel;
 import android.os.Parcelable;

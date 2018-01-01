@@ -1,4 +1,4 @@
-package io.compactd.player.utils;
+package io.compactd.player.util;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import android.support.v4.util.Pair;
 
 import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdArtist;
-import io.compactd.player.helpers.CompactdParcel;
+import io.compactd.player.helper.CompactdParcel;
 import io.compactd.player.ui.activities.AlbumActivity;
 import io.compactd.player.ui.activities.ArtistActivity;
 

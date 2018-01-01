@@ -2,7 +2,6 @@ package io.compactd.player.ui.activities;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,7 +41,7 @@ import io.compactd.client.CompactdClient;
 import io.compactd.client.CompactdException;
 import io.compactd.client.CompactdSync;
 import io.compactd.player.R;
-import io.compactd.player.utils.PreferenceUtil;
+import io.compactd.player.util.PreferenceUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
