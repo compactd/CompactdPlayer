@@ -1,6 +1,7 @@
 package io.compactd.player.ui.activities;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -156,8 +157,9 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         final SearchHistoryTable mHistoryDatabase = new SearchHistoryTable(this);
 
        // mSearchView.setVersionMargins(SearchView.VersionMargins.TOOLBAR_SMALL);
-        mSearchView.setHint("Search");
-        mSearchView.setVoice(false);
+        mSearchView.setHint("Compactd Player");
+        mSearchView.setTextFont(Typeface.createFromAsset(getAssets(), "fonts/product_sans.ttf"));
+        mSearchView.setVoice(true);
         mSearchView.close(false);
 
         final ItemSearchAdapter searchAdapter = new ItemSearchAdapter(this);

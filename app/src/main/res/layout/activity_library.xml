@@ -69,5 +69,8 @@
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.lapism.searchview.SearchBehavior" />
+        app:layout_behavior="com.lapism.searchview.SearchBehavior"
+        app:search_hint="Compactd Player"
+        app:search_text_style="bold"
+        app:search_theme="light" />
 </android.support.design.widget.CoordinatorLayout>
