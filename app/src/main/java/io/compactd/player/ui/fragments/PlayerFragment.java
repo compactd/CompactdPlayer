@@ -47,6 +47,7 @@ import io.compactd.player.glide.GlideApp;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
+import io.compactd.player.ui.activities.SlidingMusicActivity;
 import io.compactd.player.ui.views.WidthFitSquareLayout;
 
 public class PlayerFragment extends Fragment implements MediaPlayerService.MediaListener, MediaPlayerService.PlaybackListener, Toolbar.OnMenuItemClickListener {
@@ -140,6 +141,12 @@ public class PlayerFragment extends Fragment implements MediaPlayerService.Media
         toolbar.inflateMenu(R.menu.menu_player);
 
         toolbar.setOnMenuItemClickListener(this);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((SlidingMusicActivity) getActivity()).onBackPressed();
+            }
+        });
 
         prevButton.setColorFilter(Color.BLACK);
         playPauseFab.setColorFilter(Color.BLACK);
