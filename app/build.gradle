@@ -76,4 +76,6 @@ dependencies {
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
     implementation 'com.github.codekidX:storage-chooser:2.0.3'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.lapism:searchview:4.0'
+    implementation 'me.xdrop:fuzzywuzzy:1.1.9'
 }

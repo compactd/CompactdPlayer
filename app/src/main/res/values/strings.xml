@@ -54,4 +54,6 @@
     <string name="nospace_left">Not enough space left on device</string>
     <string name="sync_channel_name">Sync progress</string>
     <string name="sync_notification_title">Syncing music content</string>
+    <string name="search_hint">Artist, album or track name</string>
+    <string name="artist_item_text">%1d albums</string>
 </resources>

@@ -21,13 +21,13 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:layout_weight="1"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/app_name">
 
         </android.support.v7.widget.Toolbar>
+
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
@@ -53,6 +53,7 @@
                 android:text="@string/tracks_tab_text" />
 
         </android.support.design.widget.TabLayout>
+
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
@@ -63,4 +64,10 @@
 
     </android.support.v4.view.ViewPager>
 
+
+    <com.lapism.searchview.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.lapism.searchview.SearchBehavior" />
 </android.support.design.widget.CoordinatorLayout>

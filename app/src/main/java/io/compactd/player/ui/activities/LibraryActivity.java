@@ -8,26 +8,44 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Manager;
 import com.github.zafarkhaja.semver.Version;
+import com.lapism.searchview.SearchAdapter;
+import com.lapism.searchview.SearchFilter;
+import com.lapism.searchview.SearchHistoryTable;
+import com.lapism.searchview.SearchItem;
+import com.lapism.searchview.SearchView;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.compactd.client.CompactdClient;
 import io.compactd.client.CompactdException;
+import io.compactd.client.CompactdManager;
+import io.compactd.client.models.CompactdAlbum;
+import io.compactd.client.models.CompactdArtist;
+import io.compactd.client.models.CompactdModel;
+import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
+import io.compactd.player.adapter.ItemSearchAdapter;
 import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ArtistsFragment;
@@ -48,6 +66,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggleButton;
     private NavigationView mNavigationView;
+    private SearchView mSearchView;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -76,6 +95,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mNavigationView = findViewById(R.id.navigation);
         mNavigationView.setNavigationItemSelectedListener(this);
+        mSearchView = findViewById(R.id.searchView);
 
         if (CompactdClient.getInstance().isOffline()) {
             mNavigationView.getMenu().findItem(R.id.item_sync).setEnabled(false);
@@ -128,6 +148,85 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
         } else {
             serverText.setText(client.getUrl().getHost());
         }
+
+        setupSearchView();
+    }
+
+    private void setupSearchView() {
+        final SearchHistoryTable mHistoryDatabase = new SearchHistoryTable(this);
+
+       // mSearchView.setVersionMargins(SearchView.VersionMargins.TOOLBAR_SMALL);
+        mSearchView.setHint("Search");
+        mSearchView.setVoice(false);
+        mSearchView.close(false);
+
+        final ItemSearchAdapter searchAdapter = new ItemSearchAdapter(this);
+        mSearchView.setAdapter(searchAdapter);
+
+        mSearchView.setOnMenuClickListener(new SearchView.OnMenuClickListener() {
+
+            @Override
+            public void onMenuClick() {
+                mDrawerLayout.openDrawer(Gravity.START, true);
+            }
+        });
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mHistoryDatabase.addItem(new SearchItem(query));
+                mSearchView.close(false);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchAdapter.setQuery(newText);
+                return true;
+            }
+        });
+
+        mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
+            @Override
+            public boolean onOpen() {
+                return true;
+            }
+
+            @Override
+            public boolean onClose() {
+                return true;
+            }
+        });
+
+        searchAdapter.setListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchView.close(true);
+            }
+        });
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setupResults(searchAdapter);
+            }
+        }).start();
+    }
+
+    private void setupResults(ItemSearchAdapter adapter) {
+        List<CompactdModel> items = new ArrayList<>();
+        Manager manager = CompactdManager.getInstance(this);
+
+        try {
+            items.addAll(CompactdArtist.findAll(manager, CompactdModel.FindMode.OnlyIds));
+            items.addAll(CompactdAlbum.findAll(manager, CompactdModel.FindMode.OnlyIds));
+           // items.addAll(CompactdTrack.findAll(manager, CompactdModel.FindMode.OnlyIds));
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+
+        adapter.setItems(items);
     }
 
 
