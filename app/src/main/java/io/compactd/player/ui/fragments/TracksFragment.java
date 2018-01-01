@@ -24,6 +24,8 @@ import io.compactd.player.adapter.TracksAdapter;
  */
 
 public class TracksFragment extends ModelFragment<CompactdTrack> {
+    private boolean mShowHidden = false;
+
     public static TracksFragment newInstance (@LayoutMode int layout, String startKye) {
         return ModelFragment.newInstance(TracksFragment.class,  layout, startKye);
     }
@@ -45,12 +47,16 @@ public class TracksFragment extends ModelFragment<CompactdTrack> {
         bindModel(TracksAdapter.class, items);
         adapter.setTintBackground(false);
 
+        ((TracksAdapter) adapter).setShowHidden(mShowHidden);
 
         return root;
     }
 
     public void setShowHidden (boolean flag) {
-        TracksAdapter adapter = (TracksAdapter) this.adapter;
-        adapter.setShowHidden(flag);
+        if (this.adapter != null) {
+            TracksAdapter adapter = (TracksAdapter) this.adapter;
+            adapter.setShowHidden(flag);
+        }
+        mShowHidden = flag;
     }
 }

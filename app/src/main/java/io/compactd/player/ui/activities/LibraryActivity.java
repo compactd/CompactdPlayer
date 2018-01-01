@@ -156,9 +156,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
                 return true;
             case R.id.action_showhidden:
                 item.setChecked(!item.isChecked());
-                TracksFragment fragment = (TracksFragment)
-                        mSectionsPagerAdapter.getRegisteredFragment(2);
-                fragment.setShowHidden(item.isChecked());
+                mSectionsPagerAdapter.setShowHidden(item.isChecked());
 
                 return true;
 
@@ -187,6 +185,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private SparseArray<Fragment> mRegisteredFragments = new SparseArray<>();
+        private boolean mShowHidden = false;
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -200,7 +199,9 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
                 case 1:
                     return AlbumsFragment.newInstance(ModelFragment.GRID_LAYOUT, null);
                 case 2:
-                    return TracksFragment.newInstance(ModelFragment.VERTICAL_LAYOUT, null);
+                    TracksFragment tracksFragment = TracksFragment.newInstance(ModelFragment.VERTICAL_LAYOUT, null);
+                    tracksFragment.setShowHidden(mShowHidden);
+                    return tracksFragment;
                 default:
                     return ArtistsFragment.newInstance(ModelFragment.GRID_LAYOUT, null);
             }
@@ -212,6 +213,7 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
             return 3;
         }
 
+        @NonNull
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
 
@@ -228,6 +230,14 @@ public class LibraryActivity extends SlidingMusicActivity implements NavigationV
 
         public Fragment getRegisteredFragment (int pos) {
             return mRegisteredFragments.get(pos);
+        }
+
+        public void setShowHidden(boolean showHidden) {
+            TracksFragment fragment = (TracksFragment) getRegisteredFragment(2);
+            if (fragment != null)  {
+                fragment.setShowHidden(showHidden);
+            }
+            mShowHidden = showHidden;
         }
     }
 }
