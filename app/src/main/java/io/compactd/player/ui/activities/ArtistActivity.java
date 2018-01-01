@@ -11,6 +11,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,20 +23,25 @@ import com.bumptech.glide.request.transition.Transition;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.models.CompactdArtist;
+import io.compactd.client.models.CompactdModel;
+import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helper.CompactdParcel;
+import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.fragments.AlbumsFragment;
 import io.compactd.player.ui.fragments.ModelFragment;
 import io.compactd.player.ui.fragments.TracksFragment;
 
-public class ArtistActivity extends SlidingMusicActivity {
+public class ArtistActivity extends SlidingMusicActivity implements Toolbar.OnMenuItemClickListener {
 
     public static final String BUNDLE_ARTIST_KEY = "artist";
     private static final String TAG = ArtistActivity.class.getSimpleName();
@@ -52,6 +59,7 @@ public class ArtistActivity extends SlidingMusicActivity {
     TextView titleView;
 
     private Unbinder unbinder;
+    private CompactdArtist mArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,7 @@ public class ArtistActivity extends SlidingMusicActivity {
         unbinder = ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(this);
 
         setTheme(R.style.AppTheme_TranslucentStatusBar);
         getWindow().getDecorView().setSystemUiVisibility(
@@ -70,15 +79,6 @@ public class ArtistActivity extends SlidingMusicActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -119,12 +119,19 @@ public class ArtistActivity extends SlidingMusicActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_artist, menu);
+        return true;
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         this.onBackPressed();
         return true;
     }
 
     private void setArtist(CompactdArtist model) {
+        mArtist = model;
         try {
             model.fetch();
         } catch (CouchbaseLiteException e) {
@@ -151,5 +158,33 @@ public class ArtistActivity extends SlidingMusicActivity {
     @Override
     public void onBackPressed() {
         finish();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_play_shuffled:
+                try {
+                    List<CompactdTrack> queue = mArtist.getTracks(CompactdModel.FindMode.OnlyIds);
+                    Collections.shuffle(queue);
+                    MusicPlayerRemote.getInstance(this).openQueue(queue, 0, true);
+                    MusicPlayerRemote.getInstance(this).setShuffling(true);
+                    return true;
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
+            case R.id.action_play_next:
+                try {
+                    List<CompactdTrack> queue = mArtist.getTracks(CompactdModel.FindMode.OnlyIds);
+                    MusicPlayerRemote.getInstance(this).insert(queue);
+                    return true;
+                } catch (CouchbaseLiteException e) {
+                    e.printStackTrace();
+                }
+
+
+        }
+        return false;
     }
 }
