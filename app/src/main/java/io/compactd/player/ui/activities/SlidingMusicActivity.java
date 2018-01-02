@@ -16,6 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
+import com.mikepenz.aboutlibraries.ui.LibsFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.List;
@@ -110,6 +113,20 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 PreferenceUtil.getInstance(SlidingMusicActivity.this).setLocalPlayback(isChecked);
+            }
+        });
+
+        TextView aboutText = findViewById(R.id.about_text);
+        aboutText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new LibsBuilder()
+                        .withActivityStyle(Libs.ActivityStyle.LIGHT)
+                        .withAboutIconShown(true)
+                        .withAboutVersionShown(true)
+                        .withAboutAppName("CompactdPlayer")
+                        .withAboutDescription(getString(R.string.about_desc))
+                        .start(SlidingMusicActivity.this);
             }
         });
     }

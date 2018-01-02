@@ -56,6 +56,7 @@
     <string name="sync_notification_title">Syncing music content</string>
     <string name="search_hint">Artist, album or track name</string>
     <string name="artist_item_text">%1d albums</string>
+    <string name="about_desc">This app is based on Phonograph, an open-source music player. Lots of UI elements, layouts, code were written by kabouzeid. Congrats to him!</string>
     <string-array name="concurrent_jobs_array">
         <item>2</item>
         <item>4</item>
