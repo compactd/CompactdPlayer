@@ -2,6 +2,7 @@ package io.compactd.player.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
@@ -12,22 +13,29 @@ import com.couchbase.lite.CouchbaseLiteException;
 import java.util.Collections;
 import java.util.List;
 
+import io.compactd.client.CompactdClient;
 import io.compactd.client.models.CompactdAlbum;
 import io.compactd.client.models.CompactdModel;
 import io.compactd.client.models.CompactdTrack;
+import io.compactd.client.models.SyncOptions;
 import io.compactd.player.R;
 import io.compactd.player.glide.MediaCover;
 import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.ui.views.ItemViewHolder;
 import io.compactd.player.util.NavigationUtil;
+import io.compactd.player.util.PreferenceUtil;
 
 /**
  * Created by vinz243 on 12/12/2017.
  */
 
-public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
+public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private boolean mLocalPlayback;
+
     public AlbumsAdapter(Context context, LayoutType layoutType) {
         super(context, layoutType);
+        mLocalPlayback = PreferenceUtil.getInstance(context).isLocalPlayback();
+        PreferenceUtil.getInstance(context).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -97,5 +105,30 @@ public class AlbumsAdapter extends ModelAdapter<CompactdAlbum> {
     @Override
     protected int getStatusResource(CompactdAlbum item) {
         return item.isExcludedFromSync() ? R.drawable.ic_sync_disabled_white_24dp : 0;
+    }
+
+    @Override
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        if (!isAlbumAvailable(position)) {
+            holder.layout.setAlpha(0.5f);
+        } else {
+            holder.layout.setAlpha(1f);
+        }
+    }
+
+    private boolean isAlbumAvailable(int position) {
+        if (!CompactdClient.getInstance().isOffline() && !mLocalPlayback) {
+            return true;
+        }
+        return !items.get(position).isExcludedFromSync();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (PreferenceUtil.LOCAL_PLAYBACK.equals(key)) {
+            mLocalPlayback = PreferenceUtil.getInstance(context).isLocalPlayback();
+            notifyDataSetChanged();
+        }
     }
 }
