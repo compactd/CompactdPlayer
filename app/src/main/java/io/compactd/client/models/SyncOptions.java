@@ -10,6 +10,7 @@ public class SyncOptions {
     private boolean mNoMedia;
     private CompactdPreset mPreset;
     private String mDestination;
+    private int mConcurrentTasks;
 
     public SyncOptions() {
         mPreset = CompactdPreset.NORMAL;
@@ -38,5 +39,13 @@ public class SyncOptions {
 
     public void setDestination(String destination) {
         this.mDestination = destination;
+    }
+
+    public int getConcurrentTasks() {
+        return mConcurrentTasks;
+    }
+
+    public void setConcurrentTasks(int mConcurrentTasks) {
+        this.mConcurrentTasks = mConcurrentTasks;
     }
 }

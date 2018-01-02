@@ -74,6 +74,35 @@
 
 
                 <LinearLayout
+                    android:id="@+id/concurrent_jobs_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Concurrent downloads"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:id="@+id/concurrent_job_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="4"
+                        android:textAlignment="viewEnd" />
+
+                    <Spinner
+                        android:id="@+id/concurrent_spinner"
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/preset_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

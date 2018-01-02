@@ -13,10 +13,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -33,6 +37,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.compactd.client.CompactdManager;
 import io.compactd.client.CompactdPreset;
@@ -69,6 +74,12 @@ public class SyncActivity extends AppCompatActivity implements View.OnClickListe
 
     @BindView(R.id.main_layout)
     CoordinatorLayout mainLayout;
+
+    @BindView(R.id.concurrent_spinner)
+    Spinner concurrentJobsSpinner;
+
+    @BindView(R.id.concurrent_job_text)
+    TextView concurrentJobsText;
 
     private Unbinder unbinder;
     private SyncOptions mOptions;
@@ -126,6 +137,16 @@ public class SyncActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        setupDestinationLayout();
+
+        fab.setOnClickListener(this);
+
+        updateSizeStatus();
+
+        setupConcurrentJobsSpinner();
+    }
+
+    private void setupDestinationLayout() {
         String dest = PreferenceUtil.getInstance(SyncActivity.this).getSyncDestination();
         destinationText.setText(dest);
         mOptions.setDestination(dest);
@@ -154,10 +175,33 @@ public class SyncActivity extends AppCompatActivity implements View.OnClickListe
                 updateSizeStatus();
             }
         });
+    }
 
-        fab.setOnClickListener(this);
+    private void setupConcurrentJobsSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.concurrent_jobs_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        updateSizeStatus();
+        concurrentJobsSpinner.setAdapter(adapter);
+        concurrentJobsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int amount = (int) Math.pow(2, position + 1);
+                mOptions.setConcurrentTasks(amount);
+                concurrentJobsText.setText(String.valueOf(amount));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                fab.hide();
+            }
+        });
+        concurrentJobsSpinner.setSelection(2);
+    }
+
+    @OnClick(R.id.concurrent_jobs_layout)
+    void onOpenConcurrentJobs (View v) {
+        concurrentJobsSpinner.performClick();
     }
 
     @Override
@@ -252,7 +296,7 @@ public class SyncActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(mOptions.getConcurrentTasks());
 
         for (final CompactdTrack track : items) {
             if (!track.isAvailableOffline()) {

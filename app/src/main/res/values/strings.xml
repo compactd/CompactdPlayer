@@ -56,4 +56,10 @@
     <string name="sync_notification_title">Syncing music content</string>
     <string name="search_hint">Artist, album or track name</string>
     <string name="artist_item_text">%1d albums</string>
+    <string-array name="concurrent_jobs_array">
+        <item>2</item>
+        <item>4</item>
+        <item>8</item>
+        <item>16</item>
+    </string-array>
 </resources>
