@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean checkOfflineStatus() {
-        if (isNetworkAvailable()) {
+        if (isNetworkAvailable() || !PreferenceUtil.getInstance(this).isLocalPlayback()) {
             return false;
         }
 

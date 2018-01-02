@@ -2,6 +2,7 @@ package io.compactd.player.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.View;
 import com.couchbase.lite.CouchbaseLiteException;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import io.compactd.client.CompactdClient;
 import io.compactd.client.models.CompactdTrack;
@@ -24,11 +26,14 @@ import io.compactd.player.util.PreferenceUtil;
  * Created by vinz243 on 15/12/2017.
  */
 
-public class TracksAdapter extends ModelAdapter<CompactdTrack> {
+public class TracksAdapter extends ModelAdapter<CompactdTrack> implements SharedPreferences.OnSharedPreferenceChangeListener {
     private boolean mShowHidden = false;
+    private boolean mLocalPlayback = false;
 
     public TracksAdapter(Context context, LayoutType layoutType) {
         super(context, layoutType);
+        PreferenceUtil.getInstance(context).registerOnSharedPreferenceChangeListener(this);
+        mLocalPlayback = PreferenceUtil.getInstance(context).isLocalPlayback();
     }
 
     @Override
@@ -123,7 +128,7 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     }
 
     private boolean isTrackAvailable(int position) {
-        if (!CompactdClient.getInstance().isOffline()) {
+        if (!CompactdClient.getInstance().isOffline() && !mLocalPlayback) {
             return true;
         }
         CompactdTrack track = new CompactdTrack(items.get(position));
@@ -143,5 +148,13 @@ public class TracksAdapter extends ModelAdapter<CompactdTrack> {
     public void setShowHidden(boolean showHidden) {
         mShowHidden = showHidden;
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (PreferenceUtil.LOCAL_PLAYBACK.equals(key)) {
+            mLocalPlayback = PreferenceUtil.getInstance(context).isLocalPlayback();
+            notifyDataSetChanged();
+        }
     }
 }

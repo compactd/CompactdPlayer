@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="16dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:orientation="vertical">
+
+    <Switch
+        android:id="@+id/local_playback_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_cloud_off_black_24dp"
+        android:drawablePadding="32dp"
+        android:drawableTint="#7c7e87"
+        android:switchTextAppearance="@android:style/TextAppearance.Material.Menu"
+        android:text="Local playback"
+        android:textColor="@android:color/black"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/about_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="16dp"
+        android:drawableLeft="@drawable/ic_info_outline_black_24dp"
+        android:drawablePadding="32dp"
+        android:drawableStart="@drawable/ic_info_outline_black_24dp"
+        android:drawableTint="#7c7e87"
+        android:text="About"
+        android:textColor="@android:color/black"
+        android:textSize="14sp" />
+
+</LinearLayout>

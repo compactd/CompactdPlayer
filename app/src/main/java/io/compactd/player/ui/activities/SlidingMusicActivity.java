@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -22,6 +25,7 @@ import io.compactd.client.models.CompactdTrack;
 import io.compactd.player.R;
 import io.compactd.player.helper.MusicPlayerRemote;
 import io.compactd.player.service.MediaPlayerService;
+import io.compactd.player.util.PreferenceUtil;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
@@ -51,6 +55,7 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
     private FrameLayout statusBarDummy;
     private LinearLayout dragView;
     private ProgressBar mediaLoadProgress;
+    private Switch localPlaybackSwitch;
 
 
     @Override
@@ -72,6 +77,8 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         fragment        = findViewById(R.id.player_container);
         statusBarDummy  = findViewById(R.id.status_bar_dummy);
         dragView        = findViewById(R.id.dragView);
+
+        localPlaybackSwitch = findViewById(R.id.local_playback_switch);
 
         mediaLoadProgress = findViewById(R.id.media_load_progress);
 
@@ -97,6 +104,14 @@ public abstract class SlidingMusicActivity extends AppCompatActivity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
+
+        localPlaybackSwitch.setChecked(PreferenceUtil.getInstance(this).isLocalPlayback());
+        localPlaybackSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                PreferenceUtil.getInstance(SlidingMusicActivity.this).setLocalPlayback(isChecked);
+            }
+        });
     }
 
     public void setShowStatusBarDummy (boolean b) {
